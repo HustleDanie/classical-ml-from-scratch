@@ -93,7 +93,7 @@ Predict price from features. Mix of numeric (sqft, beds), ordinal (condition), a
 - **Recommended approach:** LightGBM with calendar features (day-of-week, holiday); per-city models
 - **Primary metric:** MAPE; RMSE on log(rate)
 - **Watch-out:** competitive pricing — your model competes with hosts who reprice daily
-- **Status:** [planned]
+- **Deep dive:** [05_vacation_rental_rate.md](05_vacation_rental_rate.md)
 
 ---
 
@@ -567,7 +567,7 @@ Small data, ordinal/bounded targets.
 - **Recommended approach:** Linear regression with L2; XGBoost challenger
 - **Primary metric:** MAE on grade scale
 - **Watch-out:** ceiling effects (max grade is bounded) — log-transform may distort
-- **Status:** [planned]
+- **Deep dive:** [51_student_grade_prediction.md](51_student_grade_prediction.md)
 
 ### 52. Graduation Rate Forecast (cohort)
 - **Archetype:** regression on % graduating, bounded target
@@ -642,7 +642,7 @@ Noisy targets, low signal-to-noise, league-specific features.
 - **Recommended approach:** Linear regression with team + player features; XGBoost challenger
 - **Primary metric:** RMSE on point totals
 - **Watch-out:** time-based split — never use future games to predict past
-- **Status:** [planned]
+- **Deep dive:** [58_game_score_prediction.md](58_game_score_prediction.md)
 
 ### 59. Fantasy Sports Points
 - **Archetype:** regression on player points, high variance
@@ -750,7 +750,7 @@ Integer targets. Poisson / Negative Binomial loss preferred over Gaussian.
 - **Recommended approach:** LightGBM with `objective='tweedie'` (handles intermittent zeros + positive integers)
 - **Primary metric:** Tweedie deviance; weighted-MAPE
 - **Watch-out:** intermittent demand — zero-inflated models or Croston's method
-- **Status:** [planned]
+- **Deep dive:** [68_items_sold_per_sku.md](68_items_sold_per_sku.md)
 
 ---
 

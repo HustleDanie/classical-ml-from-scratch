@@ -126,7 +126,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** XGBoost with frequent retraining; adversarial probes in CV
 - **Primary metric:** Recall at fixed precision; week-over-week recall drop = sign attackers adapted
 - **Watch-out:** adversaries adapt; static thresholds rot; build a feedback loop from analyst confirmations
-- **Status:** [planned]
+- **Deep dive:** [09_bot_detection.md](09_bot_detection.md)
 
 ### 10. Customer Complaint Escalation Prediction
 - **Archetype:** binary classification, mild-to-severe imbalance (3–10%), real-time chat / call routing
@@ -297,7 +297,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** XGBoost or Random Forest; ordinal regression as alternative for the ordering
 - **Primary metric:** Quadratic-weighted kappa (penalizes off-by-many predictions)
 - **Watch-out:** business rules often define tiers — model should respect them
-- **Status:** [planned]
+- **Deep dive:** [26_customer_tier_classification.md](26_customer_tier_classification.md)
 
 ### 27. Credit Risk Tier (Low / Medium / High)
 - **Archetype:** ordinal multiclass, 3 tiers, regulated
