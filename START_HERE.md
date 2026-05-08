@@ -14,7 +14,7 @@ When you sit down with a real ML problem, you go through **5 questions in order*
 | Q2 | Which algorithm should I try? | [MODEL_SELECTION_GUIDE_REGRESSION.md](MODEL_SELECTION_GUIDE_REGRESSION.md) + [MODEL_SELECTION_GUIDE_CLASSIFICATION.md](MODEL_SELECTION_GUIDE_CLASSIFICATION.md) + [MODEL_SELECTION_GUIDE_CLUSTERING.md](MODEL_SELECTION_GUIDE_CLUSTERING.md) |
 | Q3 | How does that algorithm work? | `HOW_IT_WORKS_XX_*.md` + `algorithms/XX_*/` |
 | Q4 | How do I run the full pipeline? | [ML_PIPELINE_GUIDE.md](ML_PIPELINE_GUIDE.md) + [FEATURE_SELECTION_GUIDE.md](FEATURE_SELECTION_GUIDE.md) |
-| Q5 | How does this play out in industry? | `EXPERT_SCENARIO_X_*.md` + [real_world_practice/](real_world_practice/) |
+| Q5 | How does this play out in industry? | [expert_scenarios/](expert_scenarios/) + [real_world_practice/](real_world_practice/) |
 
 **So your learning path mirrors that flow — don't read the repo top to bottom, read it in the order you'd use it on a real problem.**
 
@@ -86,20 +86,30 @@ For each:
 
 ### Week 4 — Stress-Test Yourself With Industry Scenarios
 
-The 10 `EXPERT_SCENARIO_*.md` files are the final exam. Each one describes a realistic industry problem.
+The [expert_scenarios/](expert_scenarios/) library is the final exam. It catalogs ~80 classification and ~80 regression archetypes, with full deep-dive walkthroughs for the 9 most distinctive ones.
 
-| # | Scenario |
-|---|----------|
-| 1 | [Fraud Detection](EXPERT_SCENARIO_1_FRAUD_DETECTION.md) |
-| 2 | [Hospital Length of Stay](EXPERT_SCENARIO_2_HOSPITAL_LOS.md) |
-| 3 | [Ride Pricing](EXPERT_SCENARIO_3_RIDE_PRICING.md) |
-| 4 | [Manufacturing](EXPERT_SCENARIO_4_MANUFACTURING.md) |
-| 5 | [Insurance Claims](EXPERT_SCENARIO_5_INSURANCE_CLAIMS.md) |
-| 6 | [Telecom Churn](EXPERT_SCENARIO_6_TELECOM_CHURN.md) |
-| 7 | [Loan Fairness](EXPERT_SCENARIO_7_LOAN_FAIRNESS.md) |
-| 8 | [Employee Attrition](EXPERT_SCENARIO_8_EMPLOYEE_ATTRITION.md) |
-| 9 | [E-commerce Segmentation](EXPERT_SCENARIO_9_ECOMMERCE_SEGMENTATION.md) |
-| 10 | [Energy Forecasting](EXPERT_SCENARIO_10_ENERGY_FORECASTING.md) |
+Start here:
+
+- [expert_scenarios/README.md](expert_scenarios/README.md) — entry point and library map
+- [Classification catalog](expert_scenarios/classification/catalog/CATALOG.md) — ~80 classification archetypes
+- [Regression catalog](expert_scenarios/regression/catalog/CATALOG.md) — ~80 regression archetypes
+- [Classification methodology](expert_scenarios/classification/from_brief_to_solution/METHODOLOGY.md) — given a brief, find the matching playbook
+- [Regression methodology](expert_scenarios/regression/from_brief_to_solution/METHODOLOGY.md) — same, for regression
+
+Existing deep dives:
+
+| # | Scenario | Type |
+|---|----------|------|
+| 1 | [Fraud Detection](expert_scenarios/classification/catalog/01_fraud_detection.md) | Classification |
+| 2 | [Hospital Length of Stay](expert_scenarios/regression/catalog/02_hospital_los.md) | Regression |
+| 3 | [Ride Pricing](expert_scenarios/regression/catalog/03_ride_pricing.md) | Regression |
+| 4 | [Manufacturing Defect](expert_scenarios/classification/catalog/04_manufacturing_defect.md) | Classification |
+| 5 | [Insurance Claims](expert_scenarios/regression/catalog/05_insurance_claims.md) | Regression |
+| 6 | [Telecom Churn](expert_scenarios/classification/catalog/06_telecom_churn.md) | Classification |
+| 7 | [Loan Fairness](expert_scenarios/classification/catalog/07_loan_fairness.md) | Classification |
+| 8 | [Employee Attrition](expert_scenarios/classification/catalog/08_employee_attrition.md) | Classification |
+| 9 | [E-commerce Segmentation](EXPERT_SCENARIO_9_ECOMMERCE_SEGMENTATION.md) | Clustering (still at root) |
+| 10 | [Energy Forecasting](expert_scenarios/regression/catalog/10_energy_forecasting.md) | Regression |
 
 For each: read the **problem statement only**, close the file, and answer on paper:
 
@@ -132,6 +142,6 @@ Pick one:
 
 - **(A) Start week 1 today** — open [PROBLEM_TYPES_GUIDE.md](PROBLEM_TYPES_GUIDE.md) and follow the week 1 reading list. Quiz yourself afterward by inventing a fake business problem and classifying it.
 - **(B) Skip straight to week 2, algorithm 01** — open [HOW_IT_WORKS_01_LINEAR_REGRESSION.md](HOW_IT_WORKS_01_LINEAR_REGRESSION.md), then [algorithms/01_linear_regression/README.md](algorithms/01_linear_regression/README.md), then run [algorithms/01_linear_regression/linear_regression.py](algorithms/01_linear_regression/linear_regression.py).
-- **(C) Pick an expert scenario as a north star** — read one `EXPERT_SCENARIO_*.md` problem statement, then work backward through the relevant chapters as you need them.
+- **(C) Pick an expert scenario as a north star** — open [expert_scenarios/](expert_scenarios/), read one scenario's problem statement, then work backward through the relevant chapters as you need them.
 
 There's no wrong choice — what matters is starting and staying consistent.
