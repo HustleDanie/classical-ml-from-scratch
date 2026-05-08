@@ -519,7 +519,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with FTRL (online learning) + feature hashing
 - **Primary metric:** Log loss (calibration drives bidding); AUC
 - **Watch-out:** every ms of latency = lost ad spend; budget the model to fit inference budget
-- **Status:** [planned]
+- **Deep dive:** [48_rtb_click_prediction.md](48_rtb_click_prediction.md)
 
 ### 49. Network Intrusion Real-Time Alert
 - **Archetype:** binary or multiclass, severe imbalance, < 100ms latency
@@ -561,7 +561,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L1, leave-one-out CV; SVM with linear kernel as alternative
 - **Primary metric:** Sensitivity (with confidence interval); per-fold variance
 - **Watch-out:** report uncertainty; with 50 cases your AUC could be ±0.1
-- **Status:** [planned]
+- **Deep dive:** [52_rare_disease_diagnosis.md](52_rare_disease_diagnosis.md)
 
 ### 53. Survey Response Classification
 - **Archetype:** multiclass, < 2,000 responses, ordinal
@@ -714,7 +714,7 @@ Class taxonomy with parent / child relationships. Models must respect the hierar
 - **Recommended approach:** Per-level Logistic Regression Softmax; flat model with hierarchy-aware loss
 - **Primary metric:** Per-level top-k accuracy
 - **Watch-out:** hierarchy violations (e.g., "Electronics > Books") are unacceptable — hard-constrain decoding
-- **Status:** [planned]
+- **Deep dive:** [67_ecommerce_product_taxonomy.md](67_ecommerce_product_taxonomy.md)
 
 ### 68. Bird / Animal Species Classification
 - **Archetype:** hierarchical multiclass, 3–4 taxonomic levels, 100–10K leaf species

@@ -108,7 +108,7 @@ Noisy targets, low signal-to-noise. Temporal split mandatory. Backtesting trumps
 - **Recommended approach:** Lasso / ElasticNet (most signals are spurious); Gradient Boosting with strong regularization
 - **Primary metric:** Out-of-sample IC (information coefficient); Sharpe on backtest
 - **Watch-out:** look-ahead bias is everywhere — features must be available at decision time
-- **Status:** [planned]
+- **Deep dive:** [06_stock_return_forecast.md](06_stock_return_forecast.md)
 
 ### 7. Bond Yield Prediction
 - **Archetype:** regression, time-series, macro-driven
@@ -516,7 +516,7 @@ Geospatial, time-of-day effects, hard latency budgets.
 - **Recommended approach:** LightGBM with route features; haversine + actual road-distance from routing API
 - **Primary metric:** MAE in minutes; on-time delivery rate
 - **Watch-out:** traffic exogenous shocks (accidents) — model needs uncertainty estimates
-- **Status:** [planned]
+- **Deep dive:** [46_delivery_time_prediction.md](46_delivery_time_prediction.md)
 
 ### 47. Fuel Cost Forecast
 - **Archetype:** regression, time-series, macro-driven
@@ -666,7 +666,7 @@ Small data, geospatial, weather-driven.
 - **Recommended approach:** Linear regression with L2 + weather features; Gradient Boosting for non-linear effects
 - **Primary metric:** MAPE; per-region accuracy
 - **Watch-out:** climate change shifts the weather-yield relationship — recent data is more relevant
-- **Status:** [planned]
+- **Deep dive:** [60_crop_yield_forecast.md](60_crop_yield_forecast.md)
 
 ### 61. Soil Moisture Prediction
 - **Archetype:** regression on % moisture, geospatial + weather
