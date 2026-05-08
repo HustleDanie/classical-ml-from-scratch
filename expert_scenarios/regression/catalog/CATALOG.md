@@ -261,7 +261,7 @@ Sensor-rich, multicollinear features. Often time-series within each part.
 - **Recommended approach:** Gradient Boosting; logit-transform target if accuracy near boundaries matters
 - **Primary metric:** MAE in percentage points
 - **Watch-out:** sensor drift over months — recent training data preferred
-- **Status:** [planned]
+- **Deep dive:** [21_manufacturing_yield.md](21_manufacturing_yield.md)
 
 ### 22. Production Throughput Forecast
 - **Archetype:** regression, time-series, capacity-constrained
@@ -600,7 +600,7 @@ Small-to-medium data, mixed types, fairness concerns.
 - **Recommended approach:** Linear regression with L2 + SHAP; Random Forest challenger
 - **Primary metric:** RMSE on log(salary); MAPE
 - **Watch-out:** historical pay encodes bias — fairness audit by protected group required
-- **Status:** [planned]
+- **Deep dive:** [54_salary_prediction.md](54_salary_prediction.md)
 
 ### 55. Time-to-Hire Prediction
 - **Archetype:** regression on days-to-fill, right-skewed, censored
@@ -699,7 +699,7 @@ Spatiotemporal, sensor noise, missing-by-design.
 - **Recommended approach:** Gradient Boosting with weather + traffic features; per-station models
 - **Primary metric:** MAE; P95 accuracy on high-AQI events
 - **Watch-out:** sensor noise (cheap sensors) — outlier-robust models preferred
-- **Status:** [planned]
+- **Deep dive:** [63_air_quality_index.md](63_air_quality_index.md)
 
 ### 64. Water Level Forecast (Rivers / Reservoirs)
 - **Archetype:** regression, time-series, weather-driven

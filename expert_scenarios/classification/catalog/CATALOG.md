@@ -417,7 +417,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** SVM with RBF or Random Forest on HOG features
 - **Primary metric:** Per-class recall (missing a stop sign matters)
 - **Watch-out:** lighting, occlusion, weather drift — augment training data
-- **Status:** [planned]
+- **Deep dive:** [38_traffic_sign_classification.md](38_traffic_sign_classification.md)
 
 ### 39. Food Category from Photo
 - **Archetype:** multiclass, 50–500 classes, imbalanced, food photos
@@ -681,7 +681,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** LightGBM with `is_unbalance`; class_weight tuned to maintenance cost
 - **Primary metric:** Recall at fixed precision (maintenance crew capacity)
 - **Watch-out:** many "failures" are recovered by automation — labels need careful definition
-- **Status:** [planned]
+- **Deep dive:** [64_equipment_failure_window.md](64_equipment_failure_window.md)
 
 ### 65. Network Attack Window Detection
 - **Archetype:** multiclass, sliding-window from packet streams
@@ -822,7 +822,7 @@ One class is 50%+, dozens of classes are < 1% each. Long-tail evaluation matters
 - **Recommended approach:** Two-stage: head classifier (top categories) + tail classifier (KNN over embeddings for remainder)
 - **Primary metric:** Top-1 accuracy on head; recall on tail
 - **Watch-out:** revenue concentration in head — but tail is where new growth comes from
-- **Status:** [planned]
+- **Deep dive:** [77_long_tail_ecommerce_category.md](77_long_tail_ecommerce_category.md)
 
 ### 78. Rare Animal Species Identification
 - **Archetype:** multiclass, very many classes, severe long-tail (many species with < 10 training images)
