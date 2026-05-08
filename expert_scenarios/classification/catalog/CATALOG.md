@@ -366,7 +366,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Binary Relevance (one-vs-rest Logistic per tag); Classifier Chains for tag correlation
 - **Primary metric:** Micro-F1; subset accuracy (exact match)
 - **Watch-out:** tag co-occurrence patterns matter — independent OvR loses information
-- **Status:** [planned]
+- **Deep dive:** [33_document_tags_multilabel.md](33_document_tags_multilabel.md)
 
 ### 34. Image Tags (multilabel from image features)
 - **Archetype:** multilabel image, 10–500 tag vocabulary
@@ -756,7 +756,7 @@ FN cost ≫ FP cost (or vice versa). Threshold tuning to a cost function is the 
 - **Recommended approach:** Logistic Regression with L2 + SHAP; threshold tuned for sensitivity at fixed specificity
 - **Primary metric:** Sensitivity at 95%+ specificity
 - **Watch-out:** false negatives cost lives; false positives cost biopsies — get clinician input on the tradeoff
-- **Status:** [planned]
+- **Deep dive:** [71_cancer_screening.md](71_cancer_screening.md)
 
 ### 72. Fraud Cost-Aware Threshold
 - **Archetype:** binary, severe imbalance, explicit cost matrix
@@ -780,7 +780,7 @@ Need well-calibrated probabilities, not just labels (downstream business logic u
 - **Recommended approach:** Logistic Regression (natively calibrated) or XGBoost with Platt scaling / isotonic regression
 - **Primary metric:** Brier score; calibration plot; expected calibration error
 - **Watch-out:** XGBoost probabilities are NOT calibrated by default — apply Platt or isotonic on a held-out set
-- **Status:** [planned]
+- **Deep dive:** [73_loan_risk_scoring_calibrated.md](73_loan_risk_scoring_calibrated.md)
 
 ### 74. Sports Betting Odds (Calibrated)
 - **Archetype:** binary, calibrated probability, public-facing

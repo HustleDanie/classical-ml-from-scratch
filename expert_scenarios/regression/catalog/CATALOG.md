@@ -741,7 +741,7 @@ Integer targets. Poisson / Negative Binomial loss preferred over Gaussian.
 - **Recommended approach:** Poisson regression with calendar features; LightGBM challenger
 - **Primary metric:** MAPE; service-level calibration
 - **Watch-out:** abandoned-call accounting — "offered" vs "answered" volume
-- **Status:** [planned]
+- **Deep dive:** [67_call_center_volume.md](67_call_center_volume.md)
 
 ### 68. Items Sold per SKU per Day
 - **Archetype:** count regression, intermittent, very large data
@@ -774,7 +774,7 @@ Predict P10/P50/P90 instead of just point estimate. Useful when downstream decis
 - **Recommended approach:** Gradient Boosting with quantile loss; system-feature engineering matters more than algo
 - **Primary metric:** Pinball loss at 0.99
 - **Watch-out:** tail predictions are noisy — large training sets required
-- **Status:** [planned]
+- **Deep dive:** [70_p99_latency_prediction.md](70_p99_latency_prediction.md)
 
 ### 71. Value-at-Risk (VaR)
 - **Archetype:** quantile regression, financial risk
@@ -807,7 +807,7 @@ Censored data. Cox PH or Random Survival Forest for the proper treatment.
 - **Recommended approach:** Cox Proportional Hazards baseline; Random Survival Forest challenger
 - **Primary metric:** Concordance (C-index)
 - **Watch-out:** treating "still active" as "0 churn" biases the model — censoring-aware fit required
-- **Status:** [planned]
+- **Deep dive:** [73_customer_time_to_churn_survival.md](73_customer_time_to_churn_survival.md)
 
 ### 74. Equipment Time-to-Failure
 - **Archetype:** survival regression, censored, predictive maintenance
