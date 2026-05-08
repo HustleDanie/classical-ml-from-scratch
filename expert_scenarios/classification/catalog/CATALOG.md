@@ -150,7 +150,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Random Forest or Gradient Boosting with early stopping; impute Age, encode Cabin presence as a feature
 - **Primary metric:** Accuracy or F1 (data is balanced enough)
 - **Watch-out:** Cabin column is ~77% missing — missingness itself is informative
-- **Status:** [planned]
+- **Deep dive:** [11_titanic_survival.md](11_titanic_survival.md)
 
 ### 12. Sentiment Classification (positive vs negative)
 - **Archetype:** binary text classification, balanced
@@ -210,7 +210,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Multinomial Naive Bayes or Logistic Regression with L2; calibrated probabilities for "definitely spam" vs "uncertain"
 - **Primary metric:** F1; precision at high threshold (don't lose legitimate mail)
 - **Watch-out:** adversarial spammers — features rot fast
-- **Status:** [planned]
+- **Deep dive:** [17_email_spam_detection.md](17_email_spam_detection.md)
 
 ### 18. News Topic Classification (multiclass)
 - **Archetype:** multiclass text, ~4–20 topics, balanced
@@ -612,7 +612,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** Logistic Regression with L2 + SHAP; XGBoost with `enable_categorical=True`
 - **Primary metric:** AUC; per-DRG fairness
 - **Watch-out:** DRG codes are high cardinality — target encoding, not one-hot
-- **Status:** [planned]
+- **Deep dive:** [57_hospital_readmission.md](57_hospital_readmission.md)
 
 ### 58. Mortgage Default
 - **Archetype:** binary, moderate imbalance, regulated, mixed types

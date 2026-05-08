@@ -57,7 +57,7 @@ Predict price from features. Mix of numeric (sqft, beds), ordinal (condition), a
 - **Recommended approach:** ElasticNet baseline; XGBoost / LightGBM challenger; log-transform target
 - **Primary metric:** RMSE on log(price); MAPE for business reporting
 - **Watch-out:** outliers (mansions) skew RMSE; consider Huber loss or log-transform
-- **Status:** [planned]
+- **Deep dive:** [01_house_price_prediction.md](01_house_price_prediction.md)
 
 ### 2. NYC Apartment Rent Prediction
 - **Archetype:** regression, geospatial, mixed types, high-cardinality categoricals
@@ -363,7 +363,7 @@ Lag features, seasonality, walk-forward validation.
 - **Recommended approach:** Prophet or SARIMA baseline; LightGBM with lag features for hierarchical SKU forecasts
 - **Primary metric:** MAPE; weighted-MAPE by SKU revenue
 - **Watch-out:** promotional events (sales, holidays) dominate — explicit features required
-- **Status:** [planned]
+- **Deep dive:** [31_daily_sales_forecast.md](31_daily_sales_forecast.md)
 
 ### 32. Inventory Demand Forecast
 - **Archetype:** regression, time-series, count-like, intermittent
@@ -465,7 +465,7 @@ Long-horizon predictions, censored data, customer-level uncertainty.
 - **Recommended approach:** Two-part: retention model + spend model, or BG/NBD + Gamma-Gamma; Gradient Boosting alternative
 - **Primary metric:** MAPE on holdout cohort; rank correlation
 - **Watch-out:** "whale" customers (top 1%) drive 40%+ of revenue — never cap their predictions
-- **Status:** [planned]
+- **Deep dive:** [41_customer_lifetime_value.md](41_customer_lifetime_value.md)
 
 ### 42. Customer Spend Forecast (Next 90 Days)
 - **Archetype:** regression on near-term spend
