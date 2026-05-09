@@ -75,7 +75,7 @@ Predict price from features. Mix of numeric (sqft, beds), ordinal (condition), a
 - **Recommended approach:** Random Forest with log target; Lasso for feature selection
 - **Primary metric:** MAPE (commercial valuations span 6 orders of magnitude)
 - **Watch-out:** market segments (Class A office vs warehouse) need separate models
-- **Status:** [planned]
+- **Deep dive:** [03_commercial_real_estate.md](03_commercial_real_estate.md)
 
 ### 4. Land / Lot Valuation
 - **Archetype:** regression, sparse features, geospatial
@@ -117,7 +117,7 @@ Noisy targets, low signal-to-noise. Temporal split mandatory. Backtesting trumps
 - **Recommended approach:** Linear baseline + XGBoost; macro features (Fed rate, CPI) dominate
 - **Primary metric:** RMSE in basis points; directional accuracy
 - **Watch-out:** regime changes (QE, rate hikes) break models trained on old regimes
-- **Status:** [planned]
+- **Deep dive:** [07_bond_yield.md](07_bond_yield.md)
 
 ### 8. Options Pricing Residual
 - **Archetype:** regression, predict Black-Scholes residual
@@ -228,7 +228,7 @@ Heavy-tailed targets. Outliers ARE the signal (catastrophic claims drive the mat
 - **Recommended approach:** Survival regression (Cox) for time-to-claim + claim-amount model
 - **Primary metric:** Concordance for ranking; MAE on cumulative loss
 - **Watch-out:** policy lapses bias estimates downward — censor-aware models required
-- **Status:** [planned]
+- **Deep dive:** [18_lifetime_claims.md](18_lifetime_claims.md)
 
 ### 19. Fraud Loss Estimation
 - **Archetype:** regression on fraud loss given fraud, heavy-tailed
@@ -330,7 +330,7 @@ Time-series, weather-driven, exogenous regressors are dominant.
 - **Recommended approach:** SARIMA baseline + Gradient Boosting on macro features
 - **Primary metric:** MAPE; per-region accuracy
 - **Watch-out:** geopolitical events dominate — model needs event-handling pathway
-- **Status:** [planned]
+- **Deep dive:** [28_oil_gas_demand.md](28_oil_gas_demand.md)
 
 ### 29. Solar Generation Forecast
 - **Archetype:** regression, time-series, weather-driven
@@ -339,7 +339,7 @@ Time-series, weather-driven, exogenous regressors are dominant.
 - **Recommended approach:** Gradient Boosting on weather (cloud cover, temperature, irradiance)
 - **Primary metric:** MAPE; peak-hour accuracy
 - **Watch-out:** physical limits (panel rating) — clip predictions
-- **Status:** [planned]
+- **Deep dive:** [29_solar_generation.md](29_solar_generation.md)
 
 ### 30. EV Charging Demand
 - **Archetype:** regression, time-series, behavioral + weather drivers
@@ -423,7 +423,7 @@ Real-time, feedback loops between price and demand. Exploration/exploitation mat
 - **Recommended approach:** Gradient Boosting on calendar + occupancy + competitor rates; reinforcement learning for production
 - **Primary metric:** RevPAR; booking conversion
 - **Watch-out:** small inventory (10–500 rooms) means high variance — Bayesian shrinkage helps
-- **Status:** [planned]
+- **Deep dive:** [37_hotel_room_rate.md](37_hotel_room_rate.md)
 
 ### 38. Dynamic Discount Optimization
 - **Archetype:** regression on optimal discount %, real-time
@@ -474,7 +474,7 @@ Long-horizon predictions, censored data, customer-level uncertainty.
 - **Recommended approach:** LightGBM with RFM features; per-segment models for high-volume cohorts
 - **Primary metric:** MAPE; rank correlation
 - **Watch-out:** seasonal patterns confound — use seasonal-naïve baseline
-- **Status:** [planned]
+- **Deep dive:** [42_customer_spend.md](42_customer_spend.md)
 
 ### 43. Campaign ROI Prediction
 - **Archetype:** regression on campaign return, small-to-medium data, causal
@@ -525,7 +525,7 @@ Geospatial, time-of-day effects, hard latency budgets.
 - **Recommended approach:** SARIMA with macro features; XGBoost challenger
 - **Primary metric:** MAPE
 - **Watch-out:** geopolitical shocks dominate — model needs event-handling
-- **Status:** [planned]
+- **Deep dive:** [47_fuel_cost_forecast.md](47_fuel_cost_forecast.md)
 
 ### 48. Route ETA Prediction
 - **Archetype:** regression on travel time, real-time
@@ -576,7 +576,7 @@ Small data, ordinal/bounded targets.
 - **Recommended approach:** Beta regression for bounded target; Random Forest as alternative
 - **Primary metric:** MAE in percentage points
 - **Watch-out:** Simpson's paradox — institution-level vs student-level confound
-- **Status:** [planned]
+- **Deep dive:** [52_graduation_rate.md](52_graduation_rate.md)
 
 ### 53. Standardized Test Score Prediction
 - **Archetype:** regression, mid-data, normal-ish distribution
@@ -609,7 +609,7 @@ Small-to-medium data, mixed types, fairness concerns.
 - **Recommended approach:** Gradient Boosting on log(days); survival regression if censoring is high
 - **Primary metric:** MAE in days
 - **Watch-out:** open reqs that never fill — censored data; ignoring biases predictions low
-- **Status:** [planned]
+- **Deep dive:** [55_time_to_hire.md](55_time_to_hire.md)
 
 ### 56. Productivity Prediction
 - **Archetype:** regression on output-per-period, mixed measurement
@@ -633,7 +633,7 @@ Noisy targets, low signal-to-noise, league-specific features.
 - **Recommended approach:** Bayesian shrinkage (regress to position mean); XGBoost challenger
 - **Primary metric:** MAE; rank correlation
 - **Watch-out:** small samples — single-season data is high variance, multi-season averaging helps
-- **Status:** [planned]
+- **Deep dive:** [57_athlete_performance.md](57_athlete_performance.md)
 
 ### 58. Game Score Prediction
 - **Archetype:** regression on point totals, paired with classification (win/loss)
@@ -816,7 +816,7 @@ Censored data. Cox PH or Random Survival Forest for the proper treatment.
 - **Recommended approach:** Random Survival Forest or DeepSurv; Cox PH baseline
 - **Primary metric:** Concordance; MAE on censored holdout
 - **Watch-out:** preventive replacements (right-censored on purpose) — must be encoded as censored
-- **Status:** [planned]
+- **Deep dive:** [74_equipment_time_to_failure.md](74_equipment_time_to_failure.md)
 
 ### 75. Drug Retention / Persistence
 - **Archetype:** survival regression on time on treatment
