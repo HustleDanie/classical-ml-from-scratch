@@ -66,7 +66,7 @@ Predict price from features. Mix of numeric (sqft, beds), ordinal (condition), a
 - **Recommended approach:** LightGBM with target-encoded neighborhood; geospatial features (lat/long, distance to subway)
 - **Primary metric:** RMSE on log(rent); MAE for stakeholder-friendly reporting
 - **Watch-out:** rent control distorts the price-feature relationship in some neighborhoods
-- **Status:** [planned]
+- **Deep dive:** [02_nyc_apartment_rent.md](02_nyc_apartment_rent.md)
 
 ### 3. Commercial Real Estate Valuation
 - **Archetype:** regression, very high target variance, small-to-medium data
@@ -372,7 +372,7 @@ Lag features, seasonality, walk-forward validation.
 - **Recommended approach:** Croston's method for intermittent; LightGBM for high-volume
 - **Primary metric:** MAPE; service-level (P95)
 - **Watch-out:** intermittent demand (zeros) breaks naive metrics — use mean absolute scaled error
-- **Status:** [planned]
+- **Deep dive:** [32_inventory_demand_forecast.md](32_inventory_demand_forecast.md)
 
 ### 33. Ad Impression Forecast
 - **Archetype:** regression, time-series, traffic-driven
@@ -399,7 +399,7 @@ Lag features, seasonality, walk-forward validation.
 - **Recommended approach:** Gradient Boosting with geospatial + weather features; per-zone or hierarchical
 - **Primary metric:** MAPE; per-zone accuracy
 - **Watch-out:** events (concerts, sports) require explicit features
-- **Status:** [planned]
+- **Deep dive:** [35_ride_volume_forecast.md](35_ride_volume_forecast.md)
 
 ---
 
@@ -534,7 +534,7 @@ Geospatial, time-of-day effects, hard latency budgets.
 - **Recommended approach:** LightGBM; per-corridor models for high-volume routes
 - **Primary metric:** MAE in seconds; P95 over-arrival rate
 - **Watch-out:** time-of-day effects are non-linear — bin or Fourier-encode hour
-- **Status:** [planned]
+- **Deep dive:** [48_route_eta.md](48_route_eta.md)
 
 ### 49. Warehouse Pick Time Prediction
 - **Archetype:** regression on pick-task duration, operational
@@ -717,7 +717,7 @@ Spatiotemporal, sensor noise, missing-by-design.
 - **Recommended approach:** Ensemble of NWP model output + Gradient Boosting on residuals
 - **Primary metric:** MAE in °C; bias correction
 - **Watch-out:** classical models can correct NWP bias but won't outperform — set expectations
-- **Status:** [planned]
+- **Deep dive:** [65_temperature_forecast.md](65_temperature_forecast.md)
 
 ---
 

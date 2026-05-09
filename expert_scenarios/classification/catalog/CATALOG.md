@@ -81,7 +81,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Random Forest or LightGBM with `class_weight`; threshold tuned for analyst alert budget
 - **Primary metric:** Recall at fixed daily alert volume (e.g., recall@100 alerts/day)
 - **Watch-out:** label drift — attack patterns change weekly; weekly retraining needed
-- **Status:** [planned]
+- **Deep dive:** [04_network_intrusion.md](04_network_intrusion.md)
 
 ### 5. Manufacturing Defect Detection (binary view)
 - **Archetype:** binary classification, severe imbalance (1–5%), real-time inline inspection
@@ -90,7 +90,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** LightGBM with `is_unbalance=True`, SHAP for which sensor flagged it
 - **Primary metric:** Recall at fixed false-alarm rate (production line tolerance)
 - **Watch-out:** correlated sensors create multicollinearity — Lasso to pick a representative subset
-- **Deep dive:** [04_manufacturing_defect.md](04_manufacturing_defect.md) (multiclass variant)
+- **Deep dive:** [05_mfg_defect_binary.md](05_mfg_defect_binary.md); multiclass variant: [04_manufacturing_defect.md](04_manufacturing_defect.md)
 
 ### 6. Insurance Fraud Claim Detection
 - **Archetype:** binary classification, severe imbalance (1–3%), batch investigation downstream
@@ -159,7 +159,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression with L2 on TF-IDF, or fine-tuned transformer for more nuance
 - **Primary metric:** Accuracy or F1
 - **Watch-out:** sarcasm and negation flip sentiment; bigrams help
-- **Status:** [planned]
+- **Deep dive:** [12_sentiment_classification.md](12_sentiment_classification.md)
 
 ### 13. A/B Test Outcome Classifier
 - **Archetype:** binary, balanced by design, downstream of an experiment
@@ -219,7 +219,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax or Linear SVM with OvR
 - **Primary metric:** Macro-F1
 - **Watch-out:** topic drift — election season changes topic distribution
-- **Status:** [planned]
+- **Deep dive:** [18_news_topic_classification.md](18_news_topic_classification.md)
 
 ### 19. Customer Support Intent Detection
 - **Archetype:** multiclass text, ~10–30 intents, imbalanced
@@ -306,7 +306,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax (regulated baseline); XGBoost challenger with SHAP
 - **Primary metric:** Quadratic-weighted kappa; per-tier recall
 - **Watch-out:** must be auditable for ECOA — black-box ensembles need SHAP at minimum
-- **Status:** [planned]
+- **Deep dive:** [27_credit_risk_tier.md](27_credit_risk_tier.md)
 
 ### 28. Customer Segment Label (Marketing 5–10 segments)
 - **Archetype:** multiclass, 5–10 nominal segments
@@ -408,7 +408,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Random Forest or XGBoost; SVM with RBF on a subset
 - **Primary metric:** Accuracy
 - **Watch-out:** classical methods cap around 97%; CNNs get 99.5%+ — set expectations
-- **Status:** [planned]
+- **Deep dive:** [37_mnist_digit_recognition.md](37_mnist_digit_recognition.md)
 
 ### 38. Traffic Sign Classification
 - **Archetype:** multiclass, 30–50 sign classes, imbalanced (some signs are rare)
@@ -510,7 +510,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** LightGBM with limited tree depth (8–10), feature precomputation in feature store
 - **Primary metric:** PR-AUC; p99 latency
 - **Watch-out:** real-time features (last-5-transaction velocity) require streaming infrastructure
-- **Status:** [planned]
+- **Deep dive:** [47_realtime_fraud_scoring.md](47_realtime_fraud_scoring.md)
 
 ### 48. Real-Time Bidding (RTB) Click Prediction
 - **Archetype:** binary, severe imbalance, < 10ms latency, billions of impressions
