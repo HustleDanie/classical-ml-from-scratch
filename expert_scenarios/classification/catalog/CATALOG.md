@@ -690,7 +690,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest or LightGBM; HMM for sequential patterns
 - **Primary metric:** Per-attack-type recall; analyst alert budget
 - **Watch-out:** attackers move slowly — windows must overlap multiple hours
-- **Status:** [planned]
+- **Deep dive:** [65_network_attack_window.md](65_network_attack_window.md)
 
 ### 66. Manufacturing Run-State Classification
 - **Archetype:** multiclass (startup / steady / wind-down / fault), balanced
@@ -699,7 +699,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest or HMM
 - **Primary metric:** Per-state recall; transition-time delay
 - **Watch-out:** state transitions are smooth, not crisp — boundary windows are inherently ambiguous
-- **Status:** [planned]
+- **Deep dive:** [66_mfg_run_state.md](66_mfg_run_state.md)
 
 ---
 
@@ -723,7 +723,7 @@ Class taxonomy with parent / child relationships. Models must respect the hierar
 - **Recommended approach:** Hierarchical Logistic Regression on embeddings; deep learning in production
 - **Primary metric:** Top-1 species; top-5; per-genus accuracy
 - **Watch-out:** geographic bias — species distributions vary by region
-- **Status:** [planned]
+- **Deep dive:** [68_bird_species.md](68_bird_species.md)
 
 ### 69. ICD-10 Disease Code Assignment
 - **Archetype:** hierarchical multilabel, 3–5 levels, 70K+ leaf codes
@@ -732,7 +732,7 @@ Class taxonomy with parent / child relationships. Models must respect the hierar
 - **Recommended approach:** Per-chapter Logistic Regression; transformer fine-tuning in production
 - **Primary metric:** Per-chapter F1; root-to-leaf path accuracy
 - **Watch-out:** label sparsity — many leaf codes have < 10 examples
-- **Status:** [planned]
+- **Deep dive:** [69_icd10_codes.md](69_icd10_codes.md)
 
 ---
 
@@ -789,7 +789,7 @@ Need well-calibrated probabilities, not just labels (downstream business logic u
 - **Recommended approach:** Logistic Regression baseline; ensemble + isotonic recalibration
 - **Primary metric:** Log loss; Brier score; profit-at-Kelly-criterion
 - **Watch-out:** public lines are competitive — beating the market by 1% is hard
-- **Status:** [planned]
+- **Deep dive:** [74_sports_betting_odds.md](74_sports_betting_odds.md)
 
 ### 75. Weather Rain Probability
 - **Archetype:** binary or multiclass, calibrated probability, public-facing
@@ -798,7 +798,7 @@ Need well-calibrated probabilities, not just labels (downstream business logic u
 - **Recommended approach:** Logistic Regression Softmax + isotonic recalibration; ensemble with NWP model output
 - **Primary metric:** Brier score; reliability diagram
 - **Watch-out:** "30% chance of rain" must mean rain happens 30% of the time on those days — calibration is the spec, not a nice-to-have
-- **Status:** [planned]
+- **Deep dive:** [75_weather_rain_probability.md](75_weather_rain_probability.md)
 
 ---
 
@@ -813,7 +813,7 @@ One class is 50%+, dozens of classes are < 1% each. Long-tail evaluation matters
 - **Recommended approach:** Per-finding Logistic Regression with L2 + per-class threshold; freeze rare-finding training when data is too sparse
 - **Primary metric:** Per-finding AUC; macro-AUC weighted toward rare findings
 - **Watch-out:** rare finding with 5 examples is unlearnable — keep an "alert radiologist" path
-- **Status:** [planned]
+- **Deep dive:** [76_rare_exam_findings.md](76_rare_exam_findings.md)
 
 ### 77. Long-Tail E-commerce Category
 - **Archetype:** multiclass, very many classes, head/tail split (90% of volume in 10% of categories)
@@ -831,7 +831,7 @@ One class is 50%+, dozens of classes are < 1% each. Long-tail evaluation matters
 - **Recommended approach:** Logistic Regression Softmax for top species; nearest-neighbor on embeddings for tail
 - **Primary metric:** Top-1 head accuracy; top-5 tail recall
 - **Watch-out:** observation bias — common species over-represented in citizen-science datasets
-- **Status:** [planned]
+- **Deep dive:** [78_rare_animal_species.md](78_rare_animal_species.md)
 
 ---
 

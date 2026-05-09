@@ -126,7 +126,7 @@ Noisy targets, low signal-to-noise. Temporal split mandatory. Backtesting trumps
 - **Recommended approach:** Gradient Boosting; physics-informed (use BS as baseline)
 - **Primary metric:** RMSE in pricing units; PnL on backtest
 - **Watch-out:** liquidity drives bid-ask spread — illiquid options are noisy at any depth
-- **Status:** [planned]
+- **Deep dive:** [08_options_pricing_residual.md](08_options_pricing_residual.md)
 
 ### 9. FX Rate Move Forecast
 - **Archetype:** regression, time-series, macro-driven, small-effect signals
@@ -135,7 +135,7 @@ Noisy targets, low signal-to-noise. Temporal split mandatory. Backtesting trumps
 - **Recommended approach:** ElasticNet baseline; XGBoost with strong regularization
 - **Primary metric:** Hit rate (directional); Sharpe on backtest
 - **Watch-out:** central bank announcements dominate moves — model needs event handling
-- **Status:** [planned]
+- **Deep dive:** [09_fx_rate_move.md](09_fx_rate_move.md)
 
 ### 10. Dividend Forecast
 - **Archetype:** regression, low-frequency, fundamental-driven
@@ -144,7 +144,7 @@ Noisy targets, low signal-to-noise. Temporal split mandatory. Backtesting trumps
 - **Recommended approach:** Linear regression with L2; XGBoost as challenger
 - **Primary metric:** RMSE; classification-style accuracy on dividend-cut events
 - **Watch-out:** dividend cuts are rare and asymmetric in cost; consider hybrid regression + classification
-- **Status:** [planned]
+- **Deep dive:** [10_dividend_forecast.md](10_dividend_forecast.md)
 
 ---
 
@@ -168,7 +168,7 @@ Regulated, small-to-medium data, explainability required.
 - **Recommended approach:** Linear regression with patient-specific features; XGBoost with monotonic constraints
 - **Primary metric:** MAE; clinically-relevant deviation (within ±10% of optimal)
 - **Watch-out:** dose-response is non-linear and patient-specific — Bayesian methods preferred
-- **Status:** [planned]
+- **Deep dive:** [12_drug_dosage.md](12_drug_dosage.md)
 
 ### 13. Blood Pressure Prediction
 - **Archetype:** regression, longitudinal, missing-at-random labs
