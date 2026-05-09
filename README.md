@@ -49,21 +49,31 @@ classical-ml-from-scratch/
 │   ├── 11_pca/
 │   └── 12_boosted_trees/
 │
-└── real_world_practice/           # End-to-end ML pipelines on messy data
+├── real_world_practice/           # End-to-end ML pipelines on messy data
+│   ├── classification/
+│   │   ├── titanic_pipeline.py    # Titanic survival (891 rows, messy)
+│   │   ├── best_model.joblib
+│   │   └── plots/
+│   ├── regression/
+│   │   ├── ames_housing_pipeline.py  # Ames Housing prices (1460 rows, 80+ features)
+│   │   ├── best_model.joblib
+│   │   └── plots/
+│   └── advanced_techniques/
+│       ├── advanced_ml_pipeline.py   # 20 Newsgroups text classification (4,475 posts)
+│       ├── deploy_api.py             # Flask REST API for model serving
+│       ├── model.joblib
+│       ├── tfidf_vectorizer.joblib
+│       └── plots/
+│
+└── expert_scenarios/              # Library of ~80 classification + ~80 regression archetypes
     ├── classification/
-    │   ├── titanic_pipeline.py    # Titanic survival (891 rows, messy)
-    │   ├── best_model.joblib
-    │   └── plots/
-    ├── regression/
-    │   ├── ames_housing_pipeline.py  # Ames Housing prices (1460 rows, 80+ features)
-    │   ├── best_model.joblib
-    │   └── plots/
-    └── advanced_techniques/
-        ├── advanced_ml_pipeline.py   # 20 Newsgroups text classification (4,475 posts)
-        ├── deploy_api.py             # Flask REST API for model serving
-        ├── model.joblib
-        ├── tfidf_vectorizer.joblib
-        └── plots/
+    │   ├── catalog/               # CATALOG.md index + 5 deep-dive walkthroughs
+    │   └── from_brief_to_solution/
+    │       └── METHODOLOGY.md     # How to read a brief and find the matching scenario
+    └── regression/
+        ├── catalog/               # CATALOG.md index + 4 deep-dive walkthroughs
+        └── from_brief_to_solution/
+            └── METHODOLOGY.md
 ```
 
 ### algorithms/
@@ -105,6 +115,14 @@ The **Advanced Techniques** pipeline adds 6 additional skills:
 19. Cross-validation variants (StratifiedKFold, GroupKFold, TimeSeriesSplit)
 20. Data drift detection & monitoring (KS test, PSI, confidence tracking)
 21. Model deployment (Flask REST API with health check, batch predict)
+
+### expert_scenarios/
+
+A library of ~80 classification + ~80 regression archetypes organized for fast lookup. Each archetype is summarized in a category catalog; the most distinctive 9 have full ~500-line deep-dive walkthroughs. A methodology guide explains how to take a brief + dataset and find the matching scenario.
+
+- [expert_scenarios/README.md](expert_scenarios/README.md) — start here
+- [Classification catalog](expert_scenarios/classification/catalog/CATALOG.md) and [methodology](expert_scenarios/classification/from_brief_to_solution/METHODOLOGY.md)
+- [Regression catalog](expert_scenarios/regression/catalog/CATALOG.md) and [methodology](expert_scenarios/regression/from_brief_to_solution/METHODOLOGY.md)
 
 ---
 
