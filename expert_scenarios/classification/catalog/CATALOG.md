@@ -108,7 +108,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression with hashing trick (FTRL) or LightGBM, calibrated probabilities for bidding
 - **Primary metric:** Log loss (calibration matters for bidding); AUC for ranking
 - **Watch-out:** distribution shift between training and serving; need online learning
-- **Status:** [planned]
+- **Deep dive:** [07_ctr_prediction.md](07_ctr_prediction.md)
 
 ### 8. Anomaly Detection in IoT Sensor Streams
 - **Archetype:** binary classification or one-class, extreme imbalance (< 0.1%)
@@ -168,7 +168,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression for transparency; uplift modeling if causal effect is the goal
 - **Primary metric:** Treatment effect lift; AUUC for uplift models
 - **Watch-out:** correlation ≠ causation; randomization quality matters more than model
-- **Status:** [planned]
+- **Deep dive:** [13_ab_test_outcome.md](13_ab_test_outcome.md)
 
 ### 14. Customer Satisfaction (CSAT) Binary
 - **Archetype:** binary, balanced (45/55), survey-driven
@@ -315,7 +315,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** XGBoost or LightGBM multiclass; SHAP for segment definition
 - **Primary metric:** Macro-F1; segment-volume weighted accuracy
 - **Watch-out:** segments often come from prior unsupervised clustering — beware label leakage
-- **Status:** [planned]
+- **Deep dive:** [28_customer_segment.md](28_customer_segment.md)
 
 ### 29. ICU Severity Triage (3–5 levels)
 - **Archetype:** ordinal multiclass, 4–5 severity levels, real-time, regulated
@@ -444,7 +444,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Per-finding Logistic Regression with L2 + SHAP; calibrated probabilities
 - **Primary metric:** Per-finding AUC; sensitivity at fixed specificity
 - **Watch-out:** label noise — radiologists disagree on subtle findings
-- **Status:** [planned]
+- **Deep dive:** [41_xray_findings.md](41_xray_findings.md)
 
 ---
 

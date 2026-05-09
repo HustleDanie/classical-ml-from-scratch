@@ -84,7 +84,7 @@ Predict price from features. Mix of numeric (sqft, beds), ordinal (condition), a
 - **Recommended approach:** Gradient Boosting; geospatial KNN as auxiliary feature
 - **Primary metric:** MAPE; RMSE on log(price)
 - **Watch-out:** zoning + utilities access dominate price; missing these kills accuracy
-- **Status:** [planned]
+- **Deep dive:** [04_land_lot_valuation.md](04_land_lot_valuation.md)
 
 ### 5. Vacation Rental Nightly Rate
 - **Archetype:** regression, calendar-driven, high seasonality
@@ -270,7 +270,7 @@ Sensor-rich, multicollinear features. Often time-series within each part.
 - **Recommended approach:** LightGBM with time-of-day features; AR baseline
 - **Primary metric:** MAE in units; MAPE
 - **Watch-out:** capacity ceilings — model may predict above physically achievable; clip predictions
-- **Status:** [planned]
+- **Deep dive:** [22_production_throughput.md](22_production_throughput.md)
 
 ### 23. Defect Rate Prediction
 - **Archetype:** regression on defect rate, bounded, low-volume rare events
