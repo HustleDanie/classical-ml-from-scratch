@@ -81,7 +81,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Random Forest or LightGBM with `class_weight`; threshold tuned for analyst alert budget
 - **Primary metric:** Recall at fixed daily alert volume (e.g., recall@100 alerts/day)
 - **Watch-out:** label drift — attack patterns change weekly; weekly retraining needed
-- **Status:** [planned]
+- **Deep dive:** [04_network_intrusion.md](04_network_intrusion.md)
 
 ### 5. Manufacturing Defect Detection (binary view)
 - **Archetype:** binary classification, severe imbalance (1–5%), real-time inline inspection
@@ -90,7 +90,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** LightGBM with `is_unbalance=True`, SHAP for which sensor flagged it
 - **Primary metric:** Recall at fixed false-alarm rate (production line tolerance)
 - **Watch-out:** correlated sensors create multicollinearity — Lasso to pick a representative subset
-- **Deep dive:** [04_manufacturing_defect.md](04_manufacturing_defect.md) (multiclass variant)
+- **Deep dive:** [05_mfg_defect_binary.md](05_mfg_defect_binary.md); multiclass variant: [04_manufacturing_defect.md](04_manufacturing_defect.md)
 
 ### 6. Insurance Fraud Claim Detection
 - **Archetype:** binary classification, severe imbalance (1–3%), batch investigation downstream
@@ -99,7 +99,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** XGBoost + SHAP; investigators see top-k flagged claims daily
 - **Primary metric:** Precision at top-k; investigator hit rate
 - **Watch-out:** investigators only confirm flagged claims, so labels for "non-fraud" are uncertain
-- **Status:** [planned]
+- **Deep dive:** [06_insurance_fraud_claim.md](06_insurance_fraud_claim.md)
 
 ### 7. Click-Through Rate (CTR) Prediction
 - **Archetype:** binary classification, severe imbalance (1–5%), real-time bidding, very large data
@@ -108,7 +108,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression with hashing trick (FTRL) or LightGBM, calibrated probabilities for bidding
 - **Primary metric:** Log loss (calibration matters for bidding); AUC for ranking
 - **Watch-out:** distribution shift between training and serving; need online learning
-- **Status:** [planned]
+- **Deep dive:** [07_ctr_prediction.md](07_ctr_prediction.md)
 
 ### 8. Anomaly Detection in IoT Sensor Streams
 - **Archetype:** binary classification or one-class, extreme imbalance (< 0.1%)
@@ -117,7 +117,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Isolation Forest or one-class SVM; supervised LightGBM if labels are reliable
 - **Primary metric:** PR-AUC; precision at top-k
 - **Watch-out:** unlabeled anomalies in "normal" data poison supervised models
-- **Status:** [planned]
+- **Deep dive:** [08_iot_anomaly.md](08_iot_anomaly.md)
 
 ### 9. Bot / Fake-Account Detection
 - **Archetype:** binary classification, moderate imbalance (5–10%), adversarial, high-frequency retraining
@@ -135,7 +135,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression on TF-IDF + structured features, or DistilBERT-encoded text + LightGBM
 - **Primary metric:** Recall at fixed precision (rep workload tolerance)
 - **Watch-out:** survivorship — successful de-escalations look like "non-escalations" in the data
-- **Status:** [planned]
+- **Deep dive:** [10_complaint_escalation.md](10_complaint_escalation.md)
 
 ---
 
@@ -159,7 +159,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression with L2 on TF-IDF, or fine-tuned transformer for more nuance
 - **Primary metric:** Accuracy or F1
 - **Watch-out:** sarcasm and negation flip sentiment; bigrams help
-- **Status:** [planned]
+- **Deep dive:** [12_sentiment_classification.md](12_sentiment_classification.md)
 
 ### 13. A/B Test Outcome Classifier
 - **Archetype:** binary, balanced by design, downstream of an experiment
@@ -168,7 +168,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression for transparency; uplift modeling if causal effect is the goal
 - **Primary metric:** Treatment effect lift; AUUC for uplift models
 - **Watch-out:** correlation ≠ causation; randomization quality matters more than model
-- **Status:** [planned]
+- **Deep dive:** [13_ab_test_outcome.md](13_ab_test_outcome.md)
 
 ### 14. Customer Satisfaction (CSAT) Binary
 - **Archetype:** binary, balanced (45/55), survey-driven
@@ -177,7 +177,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression or Random Forest; SHAP for top dissatisfaction drivers
 - **Primary metric:** Accuracy or F1
 - **Watch-out:** non-response bias — happy customers respond more
-- **Status:** [planned]
+- **Deep dive:** [14_csat_binary.md](14_csat_binary.md)
 
 ### 15. Sports Match Outcome (win/loss, no ties)
 - **Archetype:** binary, balanced
@@ -186,7 +186,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression baseline, Gradient Boosting for raw accuracy
 - **Primary metric:** Accuracy or log loss (if betting odds are downstream)
 - **Watch-out:** temporal split required — never use future games to predict past
-- **Status:** [planned]
+- **Deep dive:** [15_sports_outcome.md](15_sports_outcome.md)
 
 ### 16. Cat vs Dog (image-feature based)
 - **Archetype:** binary image-feature classification, balanced
@@ -195,7 +195,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** SVM with RBF kernel; Random Forest as alternative
 - **Primary metric:** Accuracy
 - **Watch-out:** for production, deep learning beats classical by 10–20%; this is for education
-- **Status:** [planned]
+- **Deep dive:** [16_cat_vs_dog.md](16_cat_vs_dog.md)
 
 ---
 
@@ -219,7 +219,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax or Linear SVM with OvR
 - **Primary metric:** Macro-F1
 - **Watch-out:** topic drift — election season changes topic distribution
-- **Status:** [planned]
+- **Deep dive:** [18_news_topic_classification.md](18_news_topic_classification.md)
 
 ### 19. Customer Support Intent Detection
 - **Archetype:** multiclass text, ~10–30 intents, imbalanced
@@ -228,7 +228,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax with `class_weight`; for short utterances, transformer
 - **Primary metric:** Macro-F1; per-intent recall
 - **Watch-out:** rare intents (< 1%) need oversampling or a "fallback to human" route
-- **Status:** [planned]
+- **Deep dive:** [19_intent_detection.md](19_intent_detection.md)
 
 ### 20. Sarcasm / Irony Detection
 - **Archetype:** binary text, balanced or mild imbalance, hard task
@@ -237,7 +237,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression baseline; transformer-based for production accuracy
 - **Primary metric:** F1; human agreement ceiling matters (often 70–80%)
 - **Watch-out:** dataset bias — many "sarcasm" datasets are headline-based, not real conversation
-- **Status:** [planned]
+- **Deep dive:** [20_sarcasm_detection.md](20_sarcasm_detection.md)
 
 ### 21. Customer Support Ticket Routing (12+ departments)
 - **Archetype:** multiclass text, 10–30 departments, imbalanced
@@ -246,7 +246,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax with `class_weight`; Multinomial NB as fast baseline
 - **Primary metric:** Macro-F1; routing accuracy weighted by ticket volume
 - **Watch-out:** SVM with OvO is impractical (66+ binary models for 12 classes)
-- **Status:** [planned]
+- **Deep dive:** [21_ticket_routing.md](21_ticket_routing.md)
 
 ### 22. Document Type Classification (invoice / contract / resume / etc.)
 - **Archetype:** multiclass text + structural features, 5–15 classes, balanced
@@ -255,7 +255,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax; layout features help disambiguate
 - **Primary metric:** Macro-F1
 - **Watch-out:** OCR errors create noise; clean the text pipeline before tuning the model
-- **Status:** [planned]
+- **Deep dive:** [22_document_type.md](22_document_type.md)
 
 ### 23. Document Language Identification (25+ languages)
 - **Archetype:** multiclass text, very many classes, character n-gram features
@@ -264,7 +264,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Multinomial Naive Bayes (gold standard); Logistic Regression Softmax challenger
 - **Primary metric:** Per-language accuracy; macro-F1
 - **Watch-out:** related languages (Spanish vs Portuguese) are hard; need character n-grams of order 3–4
-- **Status:** [planned]
+- **Deep dive:** [23_language_id.md](23_language_id.md)
 
 ### 24. Toxicity / Content Moderation (binary)
 - **Archetype:** binary text, mild imbalance (3–10%), high precision required (false flag = censorship)
@@ -273,7 +273,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression with L2; transformer for production
 - **Primary metric:** Precision at fixed recall; per-protected-group fairness
 - **Watch-out:** dialect bias — AAVE flagged as toxic by naive models
-- **Status:** [planned]
+- **Deep dive:** [24_toxicity_moderation.md](24_toxicity_moderation.md)
 
 ---
 
@@ -306,7 +306,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax (regulated baseline); XGBoost challenger with SHAP
 - **Primary metric:** Quadratic-weighted kappa; per-tier recall
 - **Watch-out:** must be auditable for ECOA — black-box ensembles need SHAP at minimum
-- **Status:** [planned]
+- **Deep dive:** [27_credit_risk_tier.md](27_credit_risk_tier.md)
 
 ### 28. Customer Segment Label (Marketing 5–10 segments)
 - **Archetype:** multiclass, 5–10 nominal segments
@@ -315,7 +315,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** XGBoost or LightGBM multiclass; SHAP for segment definition
 - **Primary metric:** Macro-F1; segment-volume weighted accuracy
 - **Watch-out:** segments often come from prior unsupervised clustering — beware label leakage
-- **Status:** [planned]
+- **Deep dive:** [28_customer_segment.md](28_customer_segment.md)
 
 ### 29. ICU Severity Triage (3–5 levels)
 - **Archetype:** ordinal multiclass, 4–5 severity levels, real-time, regulated
@@ -324,7 +324,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Random Forest or XGBoost with per-class threshold; Logistic Regression baseline for audit
 - **Primary metric:** Per-severity recall; misclassification cost matrix
 - **Watch-out:** missing labs are informative ("not ordered" = "not concerning") — encode missingness
-- **Status:** [planned]
+- **Deep dive:** [29_icu_severity_triage.md](29_icu_severity_triage.md)
 
 ### 30. Equipment Fault Type (multiclass diagnostic)
 - **Archetype:** multiclass, 5–15 fault types + OK class
@@ -333,7 +333,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Random Forest or LightGBM multiclass
 - **Primary metric:** Per-fault recall (each fault has a different repair playbook)
 - **Watch-out:** new fault types appear — keep an "unknown" path
-- **Status:** [planned]
+- **Deep dive:** [30_equipment_fault_type.md](30_equipment_fault_type.md)
 
 ### 31. Weather Class (sunny / rainy / cloudy / stormy)
 - **Archetype:** multiclass, 4–8 classes, balanced or mild imbalance, geographic
@@ -342,7 +342,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** XGBoost or LightGBM multiclass; geospatial features (lat, long, elevation)
 - **Primary metric:** Accuracy; per-class F1
 - **Watch-out:** temporal split required; rare classes (stormy) cluster in time and space
-- **Status:** [planned]
+- **Deep dive:** [31_weather_class.md](31_weather_class.md)
 
 ### 32. Vehicle Class (sedan / SUV / truck / motorcycle / etc.)
 - **Archetype:** multiclass, 5–10 classes, balanced
@@ -351,7 +351,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Random Forest or LightGBM multiclass
 - **Primary metric:** Accuracy
 - **Watch-out:** trim levels and crossovers blur class boundaries
-- **Status:** [planned]
+- **Deep dive:** [32_vehicle_class.md](32_vehicle_class.md)
 
 ---
 
@@ -375,7 +375,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Binary Relevance with Logistic Regression on each tag (deep learning is better in production)
 - **Primary metric:** Micro-F1; per-tag F1 distribution
 - **Watch-out:** rare tags (< 100 occurrences) are unlearnable from classical features — drop or fold up
-- **Status:** [planned]
+- **Deep dive:** [34_image_tags_multilabel.md](34_image_tags_multilabel.md)
 
 ### 35. Gene Function Prediction
 - **Archetype:** multilabel, 100–10,000 functional categories, very sparse positives per gene
@@ -384,7 +384,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Per-label Logistic Regression with L2; structured-output methods if hierarchy is rich
 - **Primary metric:** Per-class AUC (rank-based); micro-AUPRC
 - **Watch-out:** label hierarchy (parent functions imply children) — must be respected
-- **Status:** [planned]
+- **Deep dive:** [35_gene_function.md](35_gene_function.md)
 
 ### 36. Content Moderation (multi-violation)
 - **Archetype:** multilabel binary, 5–30 violation types per item
@@ -393,7 +393,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Binary Relevance with Logistic Regression per violation; calibrated thresholds per class
 - **Primary metric:** Per-violation precision at fixed recall
 - **Watch-out:** policies change quarterly — bake in retraining cadence
-- **Status:** [planned]
+- **Deep dive:** [36_content_moderation_multilabel.md](36_content_moderation_multilabel.md)
 
 ---
 
@@ -408,7 +408,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Random Forest or XGBoost; SVM with RBF on a subset
 - **Primary metric:** Accuracy
 - **Watch-out:** classical methods cap around 97%; CNNs get 99.5%+ — set expectations
-- **Status:** [planned]
+- **Deep dive:** [37_mnist_digit_recognition.md](37_mnist_digit_recognition.md)
 
 ### 38. Traffic Sign Classification
 - **Archetype:** multiclass, 30–50 sign classes, imbalanced (some signs are rare)
@@ -426,7 +426,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Logistic Regression Softmax on CNN embeddings (transfer learning + classical head)
 - **Primary metric:** Top-5 accuracy
 - **Watch-out:** "salad" looks like 50 different things — ambiguity is structural
-- **Status:** [planned]
+- **Deep dive:** [39_food_image.md](39_food_image.md)
 
 ### 40. Product Category from Image (e-commerce)
 - **Archetype:** multiclass hierarchical, 100–10K classes, very imbalanced
@@ -435,7 +435,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Hierarchical Logistic Regression on embeddings; LightGBM challenger
 - **Primary metric:** Top-1 and Top-5 accuracy at each hierarchy level
 - **Watch-out:** category drift — new categories appear monthly
-- **Status:** [planned]
+- **Deep dive:** [40_product_image.md](40_product_image.md)
 
 ### 41. X-ray Finding Classification
 - **Archetype:** multilabel binary (each finding present/absent), 10–30 findings, regulated
@@ -444,7 +444,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Per-finding Logistic Regression with L2 + SHAP; calibrated probabilities
 - **Primary metric:** Per-finding AUC; sensitivity at fixed specificity
 - **Watch-out:** label noise — radiologists disagree on subtle findings
-- **Status:** [planned]
+- **Deep dive:** [41_xray_findings.md](41_xray_findings.md)
 
 ---
 
@@ -468,7 +468,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression with L2 on TF-IDF + structured fields; mandatory fairness audit
 - **Primary metric:** Recall at fixed precision; demographic parity
 - **Watch-out:** historical hiring data encodes historical bias — Amazon's 2018 case is the canonical warning
-- **Status:** [planned]
+- **Deep dive:** [43_hiring_screen.md](43_hiring_screen.md)
 
 ### 44. Parole / Recidivism Risk
 - **Archetype:** binary classification, severely regulated, ethical landmines
@@ -477,7 +477,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression with L2 only (interpretability is a legal requirement); fairness audit non-negotiable
 - **Primary metric:** AUC + group-wise calibration; false-positive parity
 - **Watch-out:** COMPAS controversy — historical data reflects systemic bias; consider whether the use case is ethical at all
-- **Status:** [planned]
+- **Deep dive:** [44_recidivism_risk.md](44_recidivism_risk.md)
 
 ### 45. Medical Diagnosis (Disease Detection)
 - **Archetype:** binary or multiclass, regulated, real-time, mild-to-severe imbalance
@@ -486,7 +486,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression with L2 + SHAP; ensemble challenger; calibrated probabilities
 - **Primary metric:** Sensitivity at fixed specificity; per-disease AUC
 - **Watch-out:** "patient dies" outcome means FN cost ≫ FP cost — threshold tune accordingly
-- **Status:** [planned]
+- **Deep dive:** [45_medical_diagnosis.md](45_medical_diagnosis.md)
 
 ### 46. Insurance Underwriting
 - **Archetype:** binary or multiclass tier, regulated, batch
@@ -495,7 +495,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression Softmax (multi-tier); XGBoost with monotonic constraints + SHAP
 - **Primary metric:** AUC; calibration; per-state fairness (insurance is state-regulated in the US)
 - **Watch-out:** state-specific rules (some prohibit credit-based features); model needs per-state variants
-- **Status:** [planned]
+- **Deep dive:** [46_insurance_underwriting.md](46_insurance_underwriting.md)
 
 ---
 
@@ -510,7 +510,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** LightGBM with limited tree depth (8–10), feature precomputation in feature store
 - **Primary metric:** PR-AUC; p99 latency
 - **Watch-out:** real-time features (last-5-transaction velocity) require streaming infrastructure
-- **Status:** [planned]
+- **Deep dive:** [47_realtime_fraud_scoring.md](47_realtime_fraud_scoring.md)
 
 ### 48. Real-Time Bidding (RTB) Click Prediction
 - **Archetype:** binary, severe imbalance, < 10ms latency, billions of impressions
@@ -528,7 +528,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Random Forest with bounded depth or single calibrated Decision Tree
 - **Primary metric:** Recall at fixed alert volume; p99 latency
 - **Watch-out:** alert fatigue — analysts ignore high-FP feeds
-- **Status:** [planned]
+- **Deep dive:** [49_realtime_intrusion_alert.md](49_realtime_intrusion_alert.md)
 
 ### 50. Real-Time Content Moderation
 - **Archetype:** binary or multilabel, < 100ms latency
@@ -537,7 +537,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L2 on TF-IDF (ms-fast); transformer for borderline cases (escalation tier)
 - **Primary metric:** Precision at fixed throughput; p99 latency
 - **Watch-out:** two-tier system (fast cheap classifier + slow expensive escalation) is the standard pattern
-- **Status:** [planned]
+- **Deep dive:** [50_realtime_content_moderation.md](50_realtime_content_moderation.md)
 
 ### 51. Real-Time Recommendation Click Classification
 - **Archetype:** binary, mild imbalance, < 50ms latency
@@ -546,7 +546,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Factorization Machines or shallow LightGBM; precomputed user/item embeddings
 - **Primary metric:** AUC; log loss
 - **Watch-out:** cold-start (new users/items) needs a fallback model
-- **Status:** [planned]
+- **Deep dive:** [51_realtime_recommendation_click.md](51_realtime_recommendation_click.md)
 
 ---
 
@@ -570,7 +570,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Ordinal Logistic Regression; Random Forest with limited depth
 - **Primary metric:** Quadratic-weighted kappa
 - **Watch-out:** response bias — opt-in surveys skew positive
-- **Status:** [planned]
+- **Deep dive:** [53_survey_response.md](53_survey_response.md)
 
 ### 54. Niche-Product Repeat-Purchase Prediction
 - **Archetype:** binary, small data, mild imbalance
@@ -579,7 +579,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L1; Decision Tree for interpretability
 - **Primary metric:** Recall at high precision (small marketing budget)
 - **Watch-out:** look-alike features more useful than past purchases when N is tiny
-- **Status:** [planned]
+- **Deep dive:** [54_niche_product.md](54_niche_product.md)
 
 ### 55. Startup Funding Outcome Classification
 - **Archetype:** binary or multiclass (no funding / seed / Series A+), small data, imbalanced
@@ -588,7 +588,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L1; simple Decision Tree as a sanity check
 - **Primary metric:** Per-class recall; ROC-AUC
 - **Watch-out:** survivorship bias — failed startups disappear from datasets
-- **Status:** [planned]
+- **Deep dive:** [55_startup_funding.md](55_startup_funding.md)
 
 ### 56. Lab Experiment Outcome Classification
 - **Archetype:** binary, very small data
@@ -597,7 +597,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression; report effect sizes with confidence intervals
 - **Primary metric:** Coefficient confidence intervals; AUC if there are enough rows
 - **Watch-out:** with N=50, almost any model will look good in CV — Bayesian methods help
-- **Status:** [planned]
+- **Deep dive:** [56_lab_experiment.md](56_lab_experiment.md)
 
 ---
 
@@ -621,7 +621,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** Logistic Regression with L2; XGBoost with monotonic constraints
 - **Primary metric:** AUC; KS; calibration
 - **Watch-out:** time-based split mandatory — economic regime changes
-- **Status:** [planned]
+- **Deep dive:** [58_mortgage_default.md](58_mortgage_default.md)
 
 ### 59. Customer Upsell Probability
 - **Archetype:** binary, mild imbalance, mixed types
@@ -630,7 +630,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** Uplift modeling (causal) preferred over plain classification; LightGBM as baseline
 - **Primary metric:** AUUC (uplift) or top-decile lift; offer ROI
 - **Watch-out:** "would have bought anyway" overlap dilutes lift — measure incremental, not absolute
-- **Status:** [planned]
+- **Deep dive:** [59_customer_upsell.md](59_customer_upsell.md)
 
 ### 60. Repeat-Purchase Prediction
 - **Archetype:** binary, mild-to-moderate imbalance, mixed types
@@ -639,7 +639,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** XGBoost or LightGBM; RFM-engineered features (Recency × Frequency × Monetary)
 - **Primary metric:** AUC; precision at top-k
 - **Watch-out:** customer dormancy patterns vary by industry — e-commerce ≠ subscription
-- **Status:** [planned]
+- **Deep dive:** [60_repeat_purchase.md](60_repeat_purchase.md)
 
 ### 61. Employee Attrition (6-month risk)
 - **Archetype:** binary, moderate imbalance (~9%), small-to-medium data
@@ -663,7 +663,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest or LightGBM on engineered window features; CNN-LSTM in production
 - **Primary metric:** Per-event sensitivity; false alarms per hour
 - **Watch-out:** subject-level CV mandatory — random split leaks across same patient
-- **Status:** [planned]
+- **Deep dive:** [62_eeg_seizure.md](62_eeg_seizure.md)
 
 ### 63. ECG Arrhythmia Classification
 - **Archetype:** multiclass, 5–10 arrhythmia types, imbalanced
@@ -672,7 +672,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest on engineered ECG features; deep learning in production
 - **Primary metric:** Per-class recall; macro-F1
 - **Watch-out:** patient-level CV; arrhythmias are correlated within a patient
-- **Status:** [planned]
+- **Deep dive:** [63_ecg_arrhythmia.md](63_ecg_arrhythmia.md)
 
 ### 64. Equipment Failure Window Prediction
 - **Archetype:** binary, severe imbalance, sliding-window
@@ -690,7 +690,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest or LightGBM; HMM for sequential patterns
 - **Primary metric:** Per-attack-type recall; analyst alert budget
 - **Watch-out:** attackers move slowly — windows must overlap multiple hours
-- **Status:** [planned]
+- **Deep dive:** [65_network_attack_window.md](65_network_attack_window.md)
 
 ### 66. Manufacturing Run-State Classification
 - **Archetype:** multiclass (startup / steady / wind-down / fault), balanced
@@ -699,7 +699,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest or HMM
 - **Primary metric:** Per-state recall; transition-time delay
 - **Watch-out:** state transitions are smooth, not crisp — boundary windows are inherently ambiguous
-- **Status:** [planned]
+- **Deep dive:** [66_mfg_run_state.md](66_mfg_run_state.md)
 
 ---
 
@@ -723,7 +723,7 @@ Class taxonomy with parent / child relationships. Models must respect the hierar
 - **Recommended approach:** Hierarchical Logistic Regression on embeddings; deep learning in production
 - **Primary metric:** Top-1 species; top-5; per-genus accuracy
 - **Watch-out:** geographic bias — species distributions vary by region
-- **Status:** [planned]
+- **Deep dive:** [68_bird_species.md](68_bird_species.md)
 
 ### 69. ICD-10 Disease Code Assignment
 - **Archetype:** hierarchical multilabel, 3–5 levels, 70K+ leaf codes
@@ -732,7 +732,7 @@ Class taxonomy with parent / child relationships. Models must respect the hierar
 - **Recommended approach:** Per-chapter Logistic Regression; transformer fine-tuning in production
 - **Primary metric:** Per-chapter F1; root-to-leaf path accuracy
 - **Watch-out:** label sparsity — many leaf codes have < 10 examples
-- **Status:** [planned]
+- **Deep dive:** [69_icd10_codes.md](69_icd10_codes.md)
 
 ---
 
@@ -747,7 +747,7 @@ FN cost ≫ FP cost (or vice versa). Threshold tuning to a cost function is the 
 - **Recommended approach:** XGBoost; threshold = `argmin(cost)` from PR curve
 - **Primary metric:** Expected cost per scoring window
 - **Watch-out:** cost ratio shifts when business changes — re-tune threshold quarterly
-- **Status:** [planned]
+- **Deep dive:** [70_security_alert_triage.md](70_security_alert_triage.md)
 
 ### 71. Cancer Screening (FN catastrophic)
 - **Archetype:** binary, regulated, FN cost ≫ FP cost
@@ -765,7 +765,7 @@ FN cost ≫ FP cost (or vice versa). Threshold tuning to a cost function is the 
 - **Recommended approach:** XGBoost; threshold = `argmin(FN×cost_FN + FP×cost_FP)`
 - **Primary metric:** Total expected dollar cost
 - **Watch-out:** static cost ratio is wrong — costs vary by transaction amount; weight per-row
-- **Status:** [planned]
+- **Deep dive:** [72_fraud_cost_aware.md](72_fraud_cost_aware.md)
 
 ---
 
@@ -789,7 +789,7 @@ Need well-calibrated probabilities, not just labels (downstream business logic u
 - **Recommended approach:** Logistic Regression baseline; ensemble + isotonic recalibration
 - **Primary metric:** Log loss; Brier score; profit-at-Kelly-criterion
 - **Watch-out:** public lines are competitive — beating the market by 1% is hard
-- **Status:** [planned]
+- **Deep dive:** [74_sports_betting_odds.md](74_sports_betting_odds.md)
 
 ### 75. Weather Rain Probability
 - **Archetype:** binary or multiclass, calibrated probability, public-facing
@@ -798,7 +798,7 @@ Need well-calibrated probabilities, not just labels (downstream business logic u
 - **Recommended approach:** Logistic Regression Softmax + isotonic recalibration; ensemble with NWP model output
 - **Primary metric:** Brier score; reliability diagram
 - **Watch-out:** "30% chance of rain" must mean rain happens 30% of the time on those days — calibration is the spec, not a nice-to-have
-- **Status:** [planned]
+- **Deep dive:** [75_weather_rain_probability.md](75_weather_rain_probability.md)
 
 ---
 
@@ -813,7 +813,7 @@ One class is 50%+, dozens of classes are < 1% each. Long-tail evaluation matters
 - **Recommended approach:** Per-finding Logistic Regression with L2 + per-class threshold; freeze rare-finding training when data is too sparse
 - **Primary metric:** Per-finding AUC; macro-AUC weighted toward rare findings
 - **Watch-out:** rare finding with 5 examples is unlearnable — keep an "alert radiologist" path
-- **Status:** [planned]
+- **Deep dive:** [76_rare_exam_findings.md](76_rare_exam_findings.md)
 
 ### 77. Long-Tail E-commerce Category
 - **Archetype:** multiclass, very many classes, head/tail split (90% of volume in 10% of categories)
@@ -831,7 +831,7 @@ One class is 50%+, dozens of classes are < 1% each. Long-tail evaluation matters
 - **Recommended approach:** Logistic Regression Softmax for top species; nearest-neighbor on embeddings for tail
 - **Primary metric:** Top-1 head accuracy; top-5 tail recall
 - **Watch-out:** observation bias — common species over-represented in citizen-science datasets
-- **Status:** [planned]
+- **Deep dive:** [78_rare_animal_species.md](78_rare_animal_species.md)
 
 ---
 
