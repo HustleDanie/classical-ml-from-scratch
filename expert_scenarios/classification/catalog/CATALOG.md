@@ -99,7 +99,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** XGBoost + SHAP; investigators see top-k flagged claims daily
 - **Primary metric:** Precision at top-k; investigator hit rate
 - **Watch-out:** investigators only confirm flagged claims, so labels for "non-fraud" are uncertain
-- **Status:** [planned]
+- **Deep dive:** [06_insurance_fraud_claim.md](06_insurance_fraud_claim.md)
 
 ### 7. Click-Through Rate (CTR) Prediction
 - **Archetype:** binary classification, severe imbalance (1–5%), real-time bidding, very large data
@@ -117,7 +117,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Isolation Forest or one-class SVM; supervised LightGBM if labels are reliable
 - **Primary metric:** PR-AUC; precision at top-k
 - **Watch-out:** unlabeled anomalies in "normal" data poison supervised models
-- **Status:** [planned]
+- **Deep dive:** [08_iot_anomaly.md](08_iot_anomaly.md)
 
 ### 9. Bot / Fake-Account Detection
 - **Archetype:** binary classification, moderate imbalance (5–10%), adversarial, high-frequency retraining
@@ -135,7 +135,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression on TF-IDF + structured features, or DistilBERT-encoded text + LightGBM
 - **Primary metric:** Recall at fixed precision (rep workload tolerance)
 - **Watch-out:** survivorship — successful de-escalations look like "non-escalations" in the data
-- **Status:** [planned]
+- **Deep dive:** [10_complaint_escalation.md](10_complaint_escalation.md)
 
 ---
 
@@ -177,7 +177,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression or Random Forest; SHAP for top dissatisfaction drivers
 - **Primary metric:** Accuracy or F1
 - **Watch-out:** non-response bias — happy customers respond more
-- **Status:** [planned]
+- **Deep dive:** [14_csat_binary.md](14_csat_binary.md)
 
 ### 15. Sports Match Outcome (win/loss, no ties)
 - **Archetype:** binary, balanced
@@ -228,7 +228,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax with `class_weight`; for short utterances, transformer
 - **Primary metric:** Macro-F1; per-intent recall
 - **Watch-out:** rare intents (< 1%) need oversampling or a "fallback to human" route
-- **Status:** [planned]
+- **Deep dive:** [19_intent_detection.md](19_intent_detection.md)
 
 ### 20. Sarcasm / Irony Detection
 - **Archetype:** binary text, balanced or mild imbalance, hard task
@@ -246,7 +246,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax with `class_weight`; Multinomial NB as fast baseline
 - **Primary metric:** Macro-F1; routing accuracy weighted by ticket volume
 - **Watch-out:** SVM with OvO is impractical (66+ binary models for 12 classes)
-- **Status:** [planned]
+- **Deep dive:** [21_ticket_routing.md](21_ticket_routing.md)
 
 ### 22. Document Type Classification (invoice / contract / resume / etc.)
 - **Archetype:** multiclass text + structural features, 5–15 classes, balanced
@@ -264,7 +264,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Multinomial Naive Bayes (gold standard); Logistic Regression Softmax challenger
 - **Primary metric:** Per-language accuracy; macro-F1
 - **Watch-out:** related languages (Spanish vs Portuguese) are hard; need character n-grams of order 3–4
-- **Status:** [planned]
+- **Deep dive:** [23_language_id.md](23_language_id.md)
 
 ### 24. Toxicity / Content Moderation (binary)
 - **Archetype:** binary text, mild imbalance (3–10%), high precision required (false flag = censorship)
@@ -333,7 +333,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Random Forest or LightGBM multiclass
 - **Primary metric:** Per-fault recall (each fault has a different repair playbook)
 - **Watch-out:** new fault types appear — keep an "unknown" path
-- **Status:** [planned]
+- **Deep dive:** [30_equipment_fault_type.md](30_equipment_fault_type.md)
 
 ### 31. Weather Class (sunny / rainy / cloudy / stormy)
 - **Archetype:** multiclass, 4–8 classes, balanced or mild imbalance, geographic
@@ -468,7 +468,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression with L2 on TF-IDF + structured fields; mandatory fairness audit
 - **Primary metric:** Recall at fixed precision; demographic parity
 - **Watch-out:** historical hiring data encodes historical bias — Amazon's 2018 case is the canonical warning
-- **Status:** [planned]
+- **Deep dive:** [43_hiring_screen.md](43_hiring_screen.md)
 
 ### 44. Parole / Recidivism Risk
 - **Archetype:** binary classification, severely regulated, ethical landmines
@@ -486,7 +486,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression with L2 + SHAP; ensemble challenger; calibrated probabilities
 - **Primary metric:** Sensitivity at fixed specificity; per-disease AUC
 - **Watch-out:** "patient dies" outcome means FN cost ≫ FP cost — threshold tune accordingly
-- **Status:** [planned]
+- **Deep dive:** [45_medical_diagnosis.md](45_medical_diagnosis.md)
 
 ### 46. Insurance Underwriting
 - **Archetype:** binary or multiclass tier, regulated, batch
@@ -621,7 +621,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** Logistic Regression with L2; XGBoost with monotonic constraints
 - **Primary metric:** AUC; KS; calibration
 - **Watch-out:** time-based split mandatory — economic regime changes
-- **Status:** [planned]
+- **Deep dive:** [58_mortgage_default.md](58_mortgage_default.md)
 
 ### 59. Customer Upsell Probability
 - **Archetype:** binary, mild imbalance, mixed types
@@ -747,7 +747,7 @@ FN cost ≫ FP cost (or vice versa). Threshold tuning to a cost function is the 
 - **Recommended approach:** XGBoost; threshold = `argmin(cost)` from PR curve
 - **Primary metric:** Expected cost per scoring window
 - **Watch-out:** cost ratio shifts when business changes — re-tune threshold quarterly
-- **Status:** [planned]
+- **Deep dive:** [70_security_alert_triage.md](70_security_alert_triage.md)
 
 ### 71. Cancer Screening (FN catastrophic)
 - **Archetype:** binary, regulated, FN cost ≫ FP cost
