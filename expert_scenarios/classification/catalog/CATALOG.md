@@ -384,7 +384,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Per-label Logistic Regression with L2; structured-output methods if hierarchy is rich
 - **Primary metric:** Per-class AUC (rank-based); micro-AUPRC
 - **Watch-out:** label hierarchy (parent functions imply children) — must be respected
-- **Status:** [planned]
+- **Deep dive:** [35_gene_function.md](35_gene_function.md)
 
 ### 36. Content Moderation (multi-violation)
 - **Archetype:** multilabel binary, 5–30 violation types per item
@@ -393,7 +393,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Binary Relevance with Logistic Regression per violation; calibrated thresholds per class
 - **Primary metric:** Per-violation precision at fixed recall
 - **Watch-out:** policies change quarterly — bake in retraining cadence
-- **Status:** [planned]
+- **Deep dive:** [36_content_moderation_multilabel.md](36_content_moderation_multilabel.md)
 
 ---
 
@@ -426,7 +426,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Logistic Regression Softmax on CNN embeddings (transfer learning + classical head)
 - **Primary metric:** Top-5 accuracy
 - **Watch-out:** "salad" looks like 50 different things — ambiguity is structural
-- **Status:** [planned]
+- **Deep dive:** [39_food_image.md](39_food_image.md)
 
 ### 40. Product Category from Image (e-commerce)
 - **Archetype:** multiclass hierarchical, 100–10K classes, very imbalanced
@@ -435,7 +435,7 @@ Engineered features from images (HOG, color histograms, CNN embeddings). Classic
 - **Recommended approach:** Hierarchical Logistic Regression on embeddings; LightGBM challenger
 - **Primary metric:** Top-1 and Top-5 accuracy at each hierarchy level
 - **Watch-out:** category drift — new categories appear monthly
-- **Status:** [planned]
+- **Deep dive:** [40_product_image.md](40_product_image.md)
 
 ### 41. X-ray Finding Classification
 - **Archetype:** multilabel binary (each finding present/absent), 10–30 findings, regulated
@@ -528,7 +528,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Random Forest with bounded depth or single calibrated Decision Tree
 - **Primary metric:** Recall at fixed alert volume; p99 latency
 - **Watch-out:** alert fatigue — analysts ignore high-FP feeds
-- **Status:** [planned]
+- **Deep dive:** [49_realtime_intrusion_alert.md](49_realtime_intrusion_alert.md)
 
 ### 50. Real-Time Content Moderation
 - **Archetype:** binary or multilabel, < 100ms latency
@@ -546,7 +546,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Factorization Machines or shallow LightGBM; precomputed user/item embeddings
 - **Primary metric:** AUC; log loss
 - **Watch-out:** cold-start (new users/items) needs a fallback model
-- **Status:** [planned]
+- **Deep dive:** [51_realtime_recommendation_click.md](51_realtime_recommendation_click.md)
 
 ---
 
@@ -570,7 +570,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Ordinal Logistic Regression; Random Forest with limited depth
 - **Primary metric:** Quadratic-weighted kappa
 - **Watch-out:** response bias — opt-in surveys skew positive
-- **Status:** [planned]
+- **Deep dive:** [53_survey_response.md](53_survey_response.md)
 
 ### 54. Niche-Product Repeat-Purchase Prediction
 - **Archetype:** binary, small data, mild imbalance
@@ -579,7 +579,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L1; Decision Tree for interpretability
 - **Primary metric:** Recall at high precision (small marketing budget)
 - **Watch-out:** look-alike features more useful than past purchases when N is tiny
-- **Status:** [planned]
+- **Deep dive:** [54_niche_product.md](54_niche_product.md)
 
 ### 55. Startup Funding Outcome Classification
 - **Archetype:** binary or multiclass (no funding / seed / Series A+), small data, imbalanced
@@ -588,7 +588,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L1; simple Decision Tree as a sanity check
 - **Primary metric:** Per-class recall; ROC-AUC
 - **Watch-out:** survivorship bias — failed startups disappear from datasets
-- **Status:** [planned]
+- **Deep dive:** [55_startup_funding.md](55_startup_funding.md)
 
 ### 56. Lab Experiment Outcome Classification
 - **Archetype:** binary, very small data
@@ -597,7 +597,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression; report effect sizes with confidence intervals
 - **Primary metric:** Coefficient confidence intervals; AUC if there are enough rows
 - **Watch-out:** with N=50, almost any model will look good in CV — Bayesian methods help
-- **Status:** [planned]
+- **Deep dive:** [56_lab_experiment.md](56_lab_experiment.md)
 
 ---
 
@@ -663,7 +663,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest or LightGBM on engineered window features; CNN-LSTM in production
 - **Primary metric:** Per-event sensitivity; false alarms per hour
 - **Watch-out:** subject-level CV mandatory — random split leaks across same patient
-- **Status:** [planned]
+- **Deep dive:** [62_eeg_seizure.md](62_eeg_seizure.md)
 
 ### 63. ECG Arrhythmia Classification
 - **Archetype:** multiclass, 5–10 arrhythmia types, imbalanced
@@ -672,7 +672,7 @@ Predict an event window from temporal sensor or log streams.
 - **Recommended approach:** Random Forest on engineered ECG features; deep learning in production
 - **Primary metric:** Per-class recall; macro-F1
 - **Watch-out:** patient-level CV; arrhythmias are correlated within a patient
-- **Status:** [planned]
+- **Deep dive:** [63_ecg_arrhythmia.md](63_ecg_arrhythmia.md)
 
 ### 64. Equipment Failure Window Prediction
 - **Archetype:** binary, severe imbalance, sliding-window
