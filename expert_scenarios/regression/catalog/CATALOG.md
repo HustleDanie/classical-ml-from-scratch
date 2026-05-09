@@ -177,7 +177,7 @@ Regulated, small-to-medium data, explainability required.
 - **Recommended approach:** Random Forest baseline; longitudinal models if multi-visit data exists
 - **Primary metric:** MAE in mmHg
 - **Watch-out:** white-coat hypertension — measurement context matters
-- **Status:** [planned]
+- **Deep dive:** [13_blood_pressure.md](13_blood_pressure.md)
 
 ### 14. Recovery Time Prediction
 - **Archetype:** regression, right-skewed, small-to-medium data, censored records
@@ -186,7 +186,7 @@ Regulated, small-to-medium data, explainability required.
 - **Recommended approach:** Gradient Boosting on log target; survival models if censoring is heavy
 - **Primary metric:** MAE in days; calibration on long-tail
 - **Watch-out:** censoring (patients who don't return) bias estimates
-- **Status:** [planned]
+- **Deep dive:** [14_recovery_time.md](14_recovery_time.md)
 
 ### 15. Surgery Duration Prediction
 - **Archetype:** regression, scheduling-driven
@@ -195,7 +195,7 @@ Regulated, small-to-medium data, explainability required.
 - **Recommended approach:** Gradient Boosting; per-surgery-type models for high-volume procedures
 - **Primary metric:** MAE in minutes
 - **Watch-out:** surgeon-specific effects — random effects model or include surgeon ID
-- **Status:** [planned]
+- **Deep dive:** [15_surgery_duration.md](15_surgery_duration.md)
 
 ---
 
@@ -237,7 +237,7 @@ Heavy-tailed targets. Outliers ARE the signal (catastrophic claims drive the mat
 - **Recommended approach:** Gradient Boosting on log loss; Tweedie if zero-inflated
 - **Primary metric:** RMSE on log loss; Gini on ranking
 - **Watch-out:** investigation costs not in the loss number — ask if they should be
-- **Status:** [planned]
+- **Deep dive:** [19_fraud_loss_estimation.md](19_fraud_loss_estimation.md)
 
 ### 20. Accident Severity Prediction
 - **Archetype:** regression on injury cost; heavy-tailed
@@ -246,7 +246,7 @@ Heavy-tailed targets. Outliers ARE the signal (catastrophic claims drive the mat
 - **Recommended approach:** Gradient Boosting; ordinal classification as alternative
 - **Primary metric:** MAPE; Gini for ranking
 - **Watch-out:** medical cost inflation needs CPI-adjustment in historical data
-- **Status:** [planned]
+- **Deep dive:** [20_accident_severity.md](20_accident_severity.md)
 
 ---
 
@@ -279,7 +279,7 @@ Sensor-rich, multicollinear features. Often time-series within each part.
 - **Recommended approach:** Lasso for feature selection in 200+ sensor space; LightGBM challenger
 - **Primary metric:** MAE in DPM/PPM
 - **Watch-out:** zero-defect runs dominate; consider Tweedie or log(rate + epsilon)
-- **Status:** [planned]
+- **Deep dive:** [23_defect_rate.md](23_defect_rate.md)
 
 ### 24. Equipment Downtime Prediction
 - **Archetype:** regression, right-skewed, censored
@@ -288,7 +288,7 @@ Sensor-rich, multicollinear features. Often time-series within each part.
 - **Recommended approach:** Survival regression for time-to-failure; Gradient Boosting for raw downtime
 - **Primary metric:** MAE in hours; concordance
 - **Watch-out:** maintenance schedules confound — censor or model explicitly
-- **Status:** [planned]
+- **Deep dive:** [24_equipment_downtime.md](24_equipment_downtime.md)
 
 ### 25. Quality Score Prediction
 - **Archetype:** regression on quality score (continuous or ordinal)
@@ -297,7 +297,7 @@ Sensor-rich, multicollinear features. Often time-series within each part.
 - **Recommended approach:** Gradient Boosting; ordinal regression if quality is a discrete grade
 - **Primary metric:** MAE; quadratic-weighted kappa for ordinal
 - **Watch-out:** subjective quality scoring (humans grading) — inter-rater agreement bounds model accuracy
-- **Status:** [planned]
+- **Deep dive:** [25_quality_score.md](25_quality_score.md)
 
 ---
 
@@ -348,7 +348,7 @@ Time-series, weather-driven, exogenous regressors are dominant.
 - **Recommended approach:** Gradient Boosting with calendar + weather features
 - **Primary metric:** MAPE; per-station accuracy
 - **Watch-out:** rapidly growing market — historical data may not represent current state
-- **Status:** [planned]
+- **Deep dive:** [30_ev_charging.md](30_ev_charging.md)
 
 ---
 
@@ -381,7 +381,7 @@ Lag features, seasonality, walk-forward validation.
 - **Recommended approach:** Prophet or SARIMA; LightGBM with calendar features
 - **Primary metric:** MAPE; daily aggregate accuracy
 - **Watch-out:** auction dynamics — supply changes when buyers change
-- **Status:** [planned]
+- **Deep dive:** [33_ad_impressions.md](33_ad_impressions.md)
 
 ### 34. Web Traffic Forecast
 - **Archetype:** regression, time-series, multi-seasonality, occasional spikes
@@ -390,7 +390,7 @@ Lag features, seasonality, walk-forward validation.
 - **Recommended approach:** SARIMA baseline; Gradient Boosting for non-linear effects
 - **Primary metric:** MAPE; P95 accuracy
 - **Watch-out:** viral spikes are unpredictable — separate baseline + spike-handling logic
-- **Status:** [planned]
+- **Deep dive:** [34_web_traffic_forecast.md](34_web_traffic_forecast.md)
 
 ### 35. Ride Volume Forecast
 - **Archetype:** regression, time-series, geospatial, weather-driven
@@ -432,7 +432,7 @@ Real-time, feedback loops between price and demand. Exploration/exploitation mat
 - **Recommended approach:** Uplift modeling on response curve; LightGBM regression on revenue per offer
 - **Primary metric:** Incremental revenue per offer
 - **Watch-out:** training data is biased by past offer policy — randomization or off-policy correction needed
-- **Status:** [planned]
+- **Deep dive:** [38_dynamic_discount.md](38_dynamic_discount.md)
 
 ### 39. Ad Bid Optimization
 - **Archetype:** regression on optimal bid, real-time, very low latency
