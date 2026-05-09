@@ -219,7 +219,7 @@ Heavy-tailed targets. Outliers ARE the signal (catastrophic claims drive the mat
 - **Recommended approach:** Generalized Linear Model (GLM) with Gamma/Tweedie; XGBoost challenger with monotonic constraints
 - **Primary metric:** Tweedie deviance; loss ratio on backtest
 - **Watch-out:** state regulators require rate filings — model must be auditable
-- **Status:** [planned]
+- **Deep dive:** [17_insurance_premium_pricing.md](17_insurance_premium_pricing.md)
 
 ### 18. Lifetime Claims Forecast
 - **Archetype:** regression, long-horizon, censored
@@ -321,7 +321,7 @@ Time-series, weather-driven, exogenous regressors are dominant.
 - **Recommended approach:** Gradient Boosting + ensemble with NWP weather forecasts
 - **Primary metric:** MAPE; peak-period accuracy
 - **Watch-out:** peak hour prediction matters far more than off-peak — weight loss accordingly
-- **Status:** [planned]
+- **Deep dive:** [27_power_grid_load_forecast.md](27_power_grid_load_forecast.md)
 
 ### 28. Oil / Gas Demand Forecast
 - **Archetype:** regression, time-series, macro-driven
@@ -492,7 +492,7 @@ Long-horizon predictions, censored data, customer-level uncertainty.
 - **Recommended approach:** Uplift trees / causal forests; experiments preferred over observational fit
 - **Primary metric:** Qini coefficient; AUUC
 - **Watch-out:** uplift is a difference of small numbers — high variance, large samples needed
-- **Status:** [planned]
+- **Deep dive:** [44_ad_lift_incrementality.md](44_ad_lift_incrementality.md)
 
 ### 45. Cart Value Prediction (E-commerce)
 - **Archetype:** regression, mid-skew, transactional

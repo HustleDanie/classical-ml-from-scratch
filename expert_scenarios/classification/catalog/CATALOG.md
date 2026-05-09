@@ -273,7 +273,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression with L2; transformer for production
 - **Primary metric:** Precision at fixed recall; per-protected-group fairness
 - **Watch-out:** dialect bias — AAVE flagged as toxic by naive models
-- **Status:** [planned]
+- **Deep dive:** [24_toxicity_moderation.md](24_toxicity_moderation.md)
 
 ---
 
@@ -324,7 +324,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Random Forest or XGBoost with per-class threshold; Logistic Regression baseline for audit
 - **Primary metric:** Per-severity recall; misclassification cost matrix
 - **Watch-out:** missing labs are informative ("not ordered" = "not concerning") — encode missingness
-- **Status:** [planned]
+- **Deep dive:** [29_icu_severity_triage.md](29_icu_severity_triage.md)
 
 ### 30. Equipment Fault Type (multiclass diagnostic)
 - **Archetype:** multiclass, 5–15 fault types + OK class
@@ -477,7 +477,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression with L2 only (interpretability is a legal requirement); fairness audit non-negotiable
 - **Primary metric:** AUC + group-wise calibration; false-positive parity
 - **Watch-out:** COMPAS controversy — historical data reflects systemic bias; consider whether the use case is ethical at all
-- **Status:** [planned]
+- **Deep dive:** [44_recidivism_risk.md](44_recidivism_risk.md)
 
 ### 45. Medical Diagnosis (Disease Detection)
 - **Archetype:** binary or multiclass, regulated, real-time, mild-to-severe imbalance
