@@ -441,7 +441,7 @@ Real-time, feedback loops between price and demand. Exploration/exploitation mat
 - **Recommended approach:** Logistic regression with FTRL on click probability; bid = pCTR × value × discount
 - **Primary metric:** ROI; CPC; conversion rate
 - **Watch-out:** millisecond budgets — model size constrained by inference speed
-- **Status:** [planned]
+- **Deep dive:** [39_ad_bid_optimization.md](39_ad_bid_optimization.md)
 
 ### 40. Subscription Renewal Pricing
 - **Archetype:** regression on optimal renewal price, low-frequency
@@ -450,7 +450,7 @@ Real-time, feedback loops between price and demand. Exploration/exploitation mat
 - **Recommended approach:** Two-part: churn classifier (will they renew?) + price elasticity model
 - **Primary metric:** Expected lifetime revenue
 - **Watch-out:** confounds with churn modeling — joint training works better than two separate models
-- **Status:** [planned]
+- **Deep dive:** [40_subscription_renewal.md](40_subscription_renewal.md)
 
 ---
 
@@ -483,7 +483,7 @@ Long-horizon predictions, censored data, customer-level uncertainty.
 - **Recommended approach:** Bayesian regression for uncertainty; Gradient Boosting for raw fit
 - **Primary metric:** Out-of-sample MAPE; budget-allocation backtest
 - **Watch-out:** causal vs correlational — confounding by self-selection of past campaigns
-- **Status:** [planned]
+- **Deep dive:** [43_campaign_roi.md](43_campaign_roi.md)
 
 ### 44. Ad Lift / Incrementality
 - **Archetype:** regression on incremental lift, causal-inference
@@ -501,7 +501,7 @@ Long-horizon predictions, censored data, customer-level uncertainty.
 - **Recommended approach:** LightGBM; log-transform target for skew
 - **Primary metric:** MAPE; segmentwise accuracy
 - **Watch-out:** browsing-only sessions have $0 carts — two-part model (purchase y/n + value)
-- **Status:** [planned]
+- **Deep dive:** [45_cart_value.md](45_cart_value.md)
 
 ---
 
@@ -543,7 +543,7 @@ Geospatial, time-of-day effects, hard latency budgets.
 - **Recommended approach:** Gradient Boosting with location + worker + item features
 - **Primary metric:** MAE; P95 accuracy
 - **Watch-out:** worker-specific effects — random effects model or worker ID as feature
-- **Status:** [planned]
+- **Deep dive:** [49_warehouse_pick.md](49_warehouse_pick.md)
 
 ### 50. Package Volume / Weight Estimation
 - **Archetype:** regression, geospatial + product-driven
@@ -552,7 +552,7 @@ Geospatial, time-of-day effects, hard latency budgets.
 - **Recommended approach:** Gradient Boosting; product-category × dimension lookup as baseline
 - **Primary metric:** MAPE
 - **Watch-out:** mis-declared weights (carrier surcharges) — labeled training data may have noise
-- **Status:** [planned]
+- **Deep dive:** [50_package_volume.md](50_package_volume.md)
 
 ---
 
@@ -585,7 +585,7 @@ Small data, ordinal/bounded targets.
 - **Recommended approach:** Linear regression with L2; XGBoost challenger
 - **Primary metric:** RMSE on score scale
 - **Watch-out:** test prep data confounds the prediction — controls for prep are essential
-- **Status:** [planned]
+- **Deep dive:** [53_test_score.md](53_test_score.md)
 
 ---
 
@@ -618,7 +618,7 @@ Small-to-medium data, mixed types, fairness concerns.
 - **Recommended approach:** Linear regression with L2; per-team random effects
 - **Primary metric:** MAE; R²
 - **Watch-out:** measurement bias — what counts as "productivity" varies by role
-- **Status:** [planned]
+- **Deep dive:** [56_productivity.md](56_productivity.md)
 
 ---
 
@@ -651,7 +651,7 @@ Noisy targets, low signal-to-noise, league-specific features.
 - **Recommended approach:** Gradient Boosting; per-position models
 - **Primary metric:** MAE; correlation with actual outcomes
 - **Watch-out:** game-script effects (blowout vs close game) change point distributions
-- **Status:** [planned]
+- **Deep dive:** [59_fantasy_points.md](59_fantasy_points.md)
 
 ---
 
@@ -675,7 +675,7 @@ Small data, geospatial, weather-driven.
 - **Recommended approach:** Linear regression on weather lags; Gradient Boosting challenger
 - **Primary metric:** MAE in percentage points
 - **Watch-out:** sensor calibration drift — recent calibration data only
-- **Status:** [planned]
+- **Deep dive:** [61_soil_moisture.md](61_soil_moisture.md)
 
 ### 62. Livestock Weight Gain
 - **Archetype:** regression on weight delta, longitudinal
@@ -684,7 +684,7 @@ Small data, geospatial, weather-driven.
 - **Recommended approach:** Linear regression with random effects per animal; XGBoost challenger
 - **Primary metric:** MAE in kg
 - **Watch-out:** breed and feed effects dominate — explicit features required
-- **Status:** [planned]
+- **Deep dive:** [62_livestock_weight.md](62_livestock_weight.md)
 
 ---
 
@@ -708,7 +708,7 @@ Spatiotemporal, sensor noise, missing-by-design.
 - **Recommended approach:** SARIMA baseline + Gradient Boosting on weather
 - **Primary metric:** MAE in meters; flood-event recall
 - **Watch-out:** rare flood events drive impact — weighted loss
-- **Status:** [planned]
+- **Deep dive:** [64_water_level.md](64_water_level.md)
 
 ### 65. Local Temperature Forecast
 - **Archetype:** regression, time-series, atmospheric
@@ -732,7 +732,7 @@ Integer targets. Poisson / Negative Binomial loss preferred over Gaussian.
 - **Recommended approach:** Poisson Regression baseline; LightGBM with `objective='poisson'`
 - **Primary metric:** Poisson deviance; MAPE
 - **Watch-out:** zero-inflation — many pages have zero visits in a given hour; ZIP model
-- **Status:** [planned]
+- **Deep dive:** [66_website_visits.md](66_website_visits.md)
 
 ### 67. Call Center Volume
 - **Archetype:** count regression, time-series, multi-seasonality
@@ -765,7 +765,7 @@ Predict P10/P50/P90 instead of just point estimate. Useful when downstream decis
 - **Recommended approach:** Gradient Boosting with quantile loss (`alpha=0.95`); separate model per quantile
 - **Primary metric:** Pinball loss; coverage
 - **Watch-out:** non-crossing quantiles — train multiple quantiles jointly to avoid P10 > P50
-- **Status:** [planned]
+- **Deep dive:** [69_worst_case_demand.md](69_worst_case_demand.md)
 
 ### 70. P99 Latency Prediction
 - **Archetype:** quantile regression on latency tail
@@ -783,7 +783,7 @@ Predict P10/P50/P90 instead of just point estimate. Useful when downstream decis
 - **Recommended approach:** Quantile regression on macro factors; GARCH baseline
 - **Primary metric:** Pinball loss; backtest exceptions count
 - **Watch-out:** Basel III backtesting — a fixed test framework is required
-- **Status:** [planned]
+- **Deep dive:** [71_value_at_risk.md](71_value_at_risk.md)
 
 ### 72. Prediction Interval (Generic)
 - **Archetype:** simultaneous P10/P50/P90, deployable to any regression
@@ -792,7 +792,7 @@ Predict P10/P50/P90 instead of just point estimate. Useful when downstream decis
 - **Recommended approach:** Gradient Boosting with quantile loss for each quantile; conformal prediction wrapper
 - **Primary metric:** Coverage; interval width
 - **Watch-out:** conformal prediction needs a proper holdout — don't bake into training
-- **Status:** [planned]
+- **Deep dive:** [72_prediction_intervals.md](72_prediction_intervals.md)
 
 ---
 
@@ -825,7 +825,7 @@ Censored data. Cox PH or Random Survival Forest for the proper treatment.
 - **Recommended approach:** Cox PH; Kaplan-Meier baseline
 - **Primary metric:** Concordance; treatment-arm comparisons
 - **Watch-out:** loss-to-followup is informative censoring — confounded with outcome
-- **Status:** [planned]
+- **Deep dive:** [75_drug_retention.md](75_drug_retention.md)
 
 ---
 
