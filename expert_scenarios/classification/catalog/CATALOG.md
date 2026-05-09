@@ -186,7 +186,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** Logistic Regression baseline, Gradient Boosting for raw accuracy
 - **Primary metric:** Accuracy or log loss (if betting odds are downstream)
 - **Watch-out:** temporal split required — never use future games to predict past
-- **Status:** [planned]
+- **Deep dive:** [15_sports_outcome.md](15_sports_outcome.md)
 
 ### 16. Cat vs Dog (image-feature based)
 - **Archetype:** binary image-feature classification, balanced
@@ -195,7 +195,7 @@ The minority class is < 10% of the data. Accuracy lies; you must use precision /
 - **Recommended approach:** SVM with RBF kernel; Random Forest as alternative
 - **Primary metric:** Accuracy
 - **Watch-out:** for production, deep learning beats classical by 10–20%; this is for education
-- **Status:** [planned]
+- **Deep dive:** [16_cat_vs_dog.md](16_cat_vs_dog.md)
 
 ---
 
@@ -237,7 +237,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression baseline; transformer-based for production accuracy
 - **Primary metric:** F1; human agreement ceiling matters (often 70–80%)
 - **Watch-out:** dataset bias — many "sarcasm" datasets are headline-based, not real conversation
-- **Status:** [planned]
+- **Deep dive:** [20_sarcasm_detection.md](20_sarcasm_detection.md)
 
 ### 21. Customer Support Ticket Routing (12+ departments)
 - **Archetype:** multiclass text, 10–30 departments, imbalanced
@@ -255,7 +255,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Logistic Regression Softmax; layout features help disambiguate
 - **Primary metric:** Macro-F1
 - **Watch-out:** OCR errors create noise; clean the text pipeline before tuning the model
-- **Status:** [planned]
+- **Deep dive:** [22_document_type.md](22_document_type.md)
 
 ### 23. Document Language Identification (25+ languages)
 - **Archetype:** multiclass text, very many classes, character n-gram features
@@ -342,7 +342,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** XGBoost or LightGBM multiclass; geospatial features (lat, long, elevation)
 - **Primary metric:** Accuracy; per-class F1
 - **Watch-out:** temporal split required; rare classes (stormy) cluster in time and space
-- **Status:** [planned]
+- **Deep dive:** [31_weather_class.md](31_weather_class.md)
 
 ### 32. Vehicle Class (sedan / SUV / truck / motorcycle / etc.)
 - **Archetype:** multiclass, 5–10 classes, balanced
@@ -351,7 +351,7 @@ High-dimensional sparse features (TF-IDF, character n-grams). Linear models and 
 - **Recommended approach:** Random Forest or LightGBM multiclass
 - **Primary metric:** Accuracy
 - **Watch-out:** trim levels and crossovers blur class boundaries
-- **Status:** [planned]
+- **Deep dive:** [32_vehicle_class.md](32_vehicle_class.md)
 
 ---
 
@@ -375,7 +375,7 @@ Each row can have multiple labels simultaneously. Different from multiclass.
 - **Recommended approach:** Binary Relevance with Logistic Regression on each tag (deep learning is better in production)
 - **Primary metric:** Micro-F1; per-tag F1 distribution
 - **Watch-out:** rare tags (< 100 occurrences) are unlearnable from classical features — drop or fold up
-- **Status:** [planned]
+- **Deep dive:** [34_image_tags_multilabel.md](34_image_tags_multilabel.md)
 
 ### 35. Gene Function Prediction
 - **Archetype:** multilabel, 100–10,000 functional categories, very sparse positives per gene
@@ -495,7 +495,7 @@ Coefficients required by law (lending, hiring, healthcare). Model choice is cons
 - **Recommended approach:** Logistic Regression Softmax (multi-tier); XGBoost with monotonic constraints + SHAP
 - **Primary metric:** AUC; calibration; per-state fairness (insurance is state-regulated in the US)
 - **Watch-out:** state-specific rules (some prohibit credit-based features); model needs per-state variants
-- **Status:** [planned]
+- **Deep dive:** [46_insurance_underwriting.md](46_insurance_underwriting.md)
 
 ---
 
@@ -537,7 +537,7 @@ Inference budget < 100ms (often < 10ms). Big trees and deep KNN are eliminated.
 - **Recommended approach:** Logistic Regression with L2 on TF-IDF (ms-fast); transformer for borderline cases (escalation tier)
 - **Primary metric:** Precision at fixed throughput; p99 latency
 - **Watch-out:** two-tier system (fast cheap classifier + slow expensive escalation) is the standard pattern
-- **Status:** [planned]
+- **Deep dive:** [50_realtime_content_moderation.md](50_realtime_content_moderation.md)
 
 ### 51. Real-Time Recommendation Click Classification
 - **Archetype:** binary, mild imbalance, < 50ms latency
@@ -630,7 +630,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** Uplift modeling (causal) preferred over plain classification; LightGBM as baseline
 - **Primary metric:** AUUC (uplift) or top-decile lift; offer ROI
 - **Watch-out:** "would have bought anyway" overlap dilutes lift — measure incremental, not absolute
-- **Status:** [planned]
+- **Deep dive:** [59_customer_upsell.md](59_customer_upsell.md)
 
 ### 60. Repeat-Purchase Prediction
 - **Archetype:** binary, mild-to-moderate imbalance, mixed types
@@ -639,7 +639,7 @@ Numeric + categorical + missing values. Pipelines (`ColumnTransformer`) are mand
 - **Recommended approach:** XGBoost or LightGBM; RFM-engineered features (Recency × Frequency × Monetary)
 - **Primary metric:** AUC; precision at top-k
 - **Watch-out:** customer dormancy patterns vary by industry — e-commerce ≠ subscription
-- **Status:** [planned]
+- **Deep dive:** [60_repeat_purchase.md](60_repeat_purchase.md)
 
 ### 61. Employee Attrition (6-month risk)
 - **Archetype:** binary, moderate imbalance (~9%), small-to-medium data
@@ -765,7 +765,7 @@ FN cost ≫ FP cost (or vice versa). Threshold tuning to a cost function is the 
 - **Recommended approach:** XGBoost; threshold = `argmin(FN×cost_FN + FP×cost_FP)`
 - **Primary metric:** Total expected dollar cost
 - **Watch-out:** static cost ratio is wrong — costs vary by transaction amount; weight per-row
-- **Status:** [planned]
+- **Deep dive:** [72_fraud_cost_aware.md](72_fraud_cost_aware.md)
 
 ---
 
