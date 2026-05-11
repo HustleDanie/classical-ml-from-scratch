@@ -1,0 +1,257 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+/* Enable dark mode with class strategy */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Wire Tailwind font utilities (font-sans, font-mono) to IBM Plex */
+@theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+}
+
+/* CSS Variables for theming */
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --primary: #171717;
+  --primary-foreground: #fafafa;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #0a0a0a;
+}
+
+:root.dark, .dark {
+  --background: #000000;
+  --foreground: #fafafa;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #171717;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --border: #262626;
+  --input: #262626;
+  --ring: #d4d4d4;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Ligatures + slightly tighter tracking on body for that IBM Plex feel */
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  text-rendering: optimizeLegibility;
+}
+
+/* Display / heading utility — used for hero titles and section headings.
+   Class name is kept as `font-orbitron` for backward compatibility with
+   ~30 component references; behind the scenes it is now Plex Sans Bold
+   with display tracking. */
+.font-orbitron {
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Mono utility — used for the small UPPERCASE LABELS that pepper the site
+   (STEP 01, 0x identifiers, code snippets in markdown). Class name kept
+   as `font-space-mono` for backward compat; rendered as Plex Mono. */
+.font-space-mono {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+/* Glitch Effect */
+.glitch-overlay {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+.dark .glitch-overlay {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.03) 2px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Selection */
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Card Hover Effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 20px 40px rgba(255, 255, 255, 0.05);
+}
+
+/* Markdown content styling */
+.prose-mlfs {
+  color: var(--foreground);
+  line-height: 1.7;
+}
+
+.prose-mlfs h1,
+.prose-mlfs h2,
+.prose-mlfs h3,
+.prose-mlfs h4 {
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose-mlfs h1 { font-size: 1.875rem; }
+.prose-mlfs h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+.prose-mlfs h3 { font-size: 1.25rem; }
+.prose-mlfs h4 { font-size: 1.05rem; }
+
+.prose-mlfs p {
+  margin-bottom: 1rem;
+}
+
+.prose-mlfs a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.prose-mlfs ul,
+.prose-mlfs ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose-mlfs ul { list-style: disc; }
+.prose-mlfs ol { list-style: decimal; }
+.prose-mlfs li { margin-bottom: 0.4rem; }
+
+.prose-mlfs blockquote {
+  border-left: 2px solid var(--foreground);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.prose-mlfs code:not(pre code) {
+  background: var(--muted);
+  padding: 0.15rem 0.4rem;
+  font-size: 0.9em;
+  border: 1px solid var(--border);
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+.prose-mlfs pre,
+.prose-mlfs pre code {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+.prose-mlfs pre {
+  margin: 1rem 0;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.prose-mlfs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+
+.prose-mlfs th,
+.prose-mlfs td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose-mlfs th {
+  background: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.prose-mlfs img {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+.prose-mlfs hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* KaTeX scroll on mobile */
+.prose-mlfs .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+}

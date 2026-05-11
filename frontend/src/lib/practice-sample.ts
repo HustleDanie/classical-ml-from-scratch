@@ -1,0 +1,315 @@
+/**
+ * Static sample brief + solution for the Practice page.
+ *
+ * Used when the user clicks "Try Sample" — lets them test the UI flow
+ * (brief panel → attempt textarea → solution panel) without spending
+ * Anthropic API credits or needing ANTHROPIC_API_KEY configured.
+ *
+ * The content mirrors what a real Opus 4.7 generation would produce,
+ * so the rendered output (markdown, KaTeX, code blocks, tables) is a
+ * faithful preview of the live experience.
+ */
+
+export const SAMPLE_BRIEF = `# Restaurant Inspection Risk Scoring
+
+> **Complexity:** Moderate imbalance (~7% critical-violation rate), mixed types with informative missingness, regulated audit trail, fairness scrutiny on small businesses, feedback loop on which restaurants got inspected historically.
+
+---
+
+## The Brief
+
+We're a regional health department in the Midwest US covering 24,000 active food-service permits across 47 counties. Right now our 88 inspectors visit each restaurant on a fixed annual rotation — same calendar slot every year. Last fall, a pediatric salmonella cluster was traced to a restaurant that had passed its routine inspection three weeks earlier; the place had been deteriorating for months but didn't come up in the queue. The state health commissioner has asked us to build a risk score that predicts which restaurants are likely to have a critical violation in the next 90 days, so we can re-route inspectors toward higher-risk locations.
+
+We have 6 years of historical data: ~210K inspection records, each with the result (pass / minor violations / critical violation), the inspector ID, the date, and 60+ feature columns including cuisine type, seating capacity, ownership type, complaint history (free-text complaint logs we'd need to handle), days since last inspection, prior violation history, neighborhood demographics, weather at inspection time, and a sparse field for "renovations or ownership change in last 12 months" that's only filled in for ~20% of records (and we suspect missingness is informative — owners who don't disclose are more likely to fail).
+
+The base rate of critical violations is roughly 7% of inspections. The cost asymmetry is severe: a missed critical violation can cause an outbreak (six-figure response cost plus health harm), while an unnecessary inspection costs ~$240 in inspector time. Our deployment target is a quarterly batch scoring run that produces a ranked list — no real-time constraint, but the model's decisions WILL be FOIA'd, so we need clear feature attributions per restaurant. There's also pressure from the small-business association to make sure the score isn't systematically harder on independent restaurants vs. chains; we'd like a fairness check.
+
+This is harder than it sounds because the historical inspection rate itself depends on past inspector judgment — feedback loop risk if we just train on "did the inspector find a violation" without thinking about who got inspected and why.`;
+
+export const SAMPLE_SOLUTION = `# Model Answer
+
+## Step 1: Define the Problem Type
+
+Binary classification on \`critical_violation_within_90d ∈ {0, 1}\`. Base rate ≈ 7%, so ROC-AUC will look flattering — primary metric should be **PR-AUC** (precision-recall area), with **recall@k** as the operational metric (where k = inspector capacity per quarter ≈ 3,500 visits). Secondary: **calibration** (Brier score) — the score will be FOIA'd, so probabilities need to mean something. Hard constraints: explanations per restaurant (SHAP), fairness audit on independent vs. chain ownership.
+
+ROC-AUC is the wrong primary because at 7% prevalence a useless ranker still scores ~0.5 and a mediocre one scores ~0.85; PR-AUC differentiates better in the regime that matters.
+
+## Step 2: Understand the Data
+
+\`\`\`
+Inspection-level (210K rows, 60+ cols):
+  - target: result ∈ {pass, minor, critical}    →  binary: critical vs. not
+  - inspector_id (high-cardinality, ~88 values) →  POTENTIAL LEAKER
+  - inspection_date                              →  use for time split
+  - days_since_last_inspection                   →  good signal
+  - prior_critical_count (rolling 365d)          →  strong baseline feature
+
+Restaurant-level:
+  - cuisine_type, seating_capacity, ownership_type (chain/indep), county
+  - neighborhood_demographics                    →  fairness risk, drop direct
+  - complaint_log_text (free text, 0-N entries)  →  needs NLP
+
+Sparse / informative missingness:
+  - renovation_or_ownership_change_12m (20% filled) → IMPUTE WITH FLAG
+\`\`\`
+
+Two flags immediately: \`inspector_id\` is a leaker (an inspector's strictness predicts the outcome but isn't a property of the restaurant — drop or hash). \`neighborhood_demographics\` raw fields invite disparate-impact issues — engineer at the location level (e.g. distance to nearest sister restaurant), don't feed raw race/income.
+
+## Step 3: Exploratory Data Analysis (EDA)
+
+| Finding | Implication |
+|---|---|
+| Critical-violation rate by cuisine: 12% Asian, 10% Mexican, 5% American, 4% Pizza | Real signal, but check for inspector-bias confounding before trusting |
+| Critical rate jumps from 6% → 14% when \`days_since_last_inspection > 540\` | Strong predictor; expected — older inspections drift |
+| Restaurants with ≥1 prior critical in last 365d: 31% recur | Single most powerful feature |
+| \`renovation_or_ownership_change_12m\` filled = 4% critical; missing = 9% critical | Missingness is informative — KEEP a missingness indicator |
+| Complaint count in trailing 90d > 0: 18% critical vs. 5% baseline | Free-text → engineer count + sentiment features |
+| Inspector-level critical rate ranges 3% → 14% across the 88 inspectors | Confirms inspector_id is a confounder, not a feature |
+
+## Step 4: Data Cleaning
+
+\`\`\`python
+import pandas as pd
+import numpy as np
+
+df = df.copy()
+
+# Target: binary critical vs. not (collapse pass + minor)
+df["y"] = (df["result"] == "critical").astype(int)
+
+# Drop the inspector — confounder, not a property of the restaurant
+df = df.drop(columns=["inspector_id"])
+
+# Informative missingness: keep BOTH the flag and the imputed value
+df["renov_disclosed"] = df["renovation_or_ownership_change_12m"].notna().astype(int)
+df["renovation_or_ownership_change_12m"] = df["renovation_or_ownership_change_12m"].fillna(False)
+
+# Cap days_since_last_inspection at 1095 (3 years) — anything beyond is data error
+df["days_since_last_inspection"] = df["days_since_last_inspection"].clip(upper=1095)
+
+# Drop raw demographic columns — fairness risk, replaced with engineered features in Step 5
+df = df.drop(columns=[c for c in df.columns if c.startswith("demo_")])
+\`\`\`
+
+Note: do **not** cap \`prior_critical_count\` — the long tail (3+ priors) is exactly the signal we want.
+
+## Step 5: Feature Engineering
+
+\`\`\`python
+# 1. Recency-weighted prior violations — recent priors weigh more
+df["weighted_prior_critical"] = (
+    df.groupby("restaurant_id")
+      .apply(lambda g: (g["y"].shift() / (g["days_since_last_inspection"].shift() + 30)).cumsum())
+      .reset_index(drop=True)
+)
+
+# 2. Complaint count in trailing 90d (from free-text logs)
+df["complaints_90d"] = df["complaint_log_text"].apply(
+    lambda txt: 0 if not txt else len(txt.split("|"))   # logs delimited by '|'
+)
+
+# 3. Negative-sentiment flag — VADER on raw complaint text
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+sia = SentimentIntensityAnalyzer()
+df["complaint_neg_sentiment"] = df["complaint_log_text"].apply(
+    lambda t: 0.0 if not t else sia.polarity_scores(t)["neg"]
+)
+
+# 4. Seasonality — summer cluster of food-borne illness
+df["month"] = pd.to_datetime(df["inspection_date"]).dt.month
+df["is_summer"] = df["month"].isin([6, 7, 8]).astype(int)
+
+# 5. Local prevalence — % critical in the same county over trailing 6mo (lagged so no leakage)
+df["county_prev_6mo"] = (
+    df.groupby("county")["y"]
+      .transform(lambda s: s.shift().rolling(window=180, min_periods=20).mean())
+)
+\`\`\`
+
+Why these: (1) decays old violations correctly, (2)+(3) extract the single strongest external signal (customer complaints), (4) a known epidemiological pattern, (5) captures local outbreaks without leaking the future.
+
+## Step 6: Feature Selection
+
+\`\`\`python
+from sklearn.feature_selection import mutual_info_classif
+
+mi = mutual_info_classif(X_train, y_train, random_state=42)
+ranking = pd.Series(mi, index=X_train.columns).sort_values(ascending=False)
+print(ranking.head(15))
+\`\`\`
+
+Expected top features: \`weighted_prior_critical\`, \`prior_critical_count\`, \`days_since_last_inspection\`, \`complaints_90d\`, \`renov_disclosed\`, \`cuisine_type\`, \`county_prev_6mo\`, \`complaint_neg_sentiment\`, \`is_summer\`, \`seating_capacity\`, \`ownership_type\`. Drop anything below MI ≈ 0.005 — for this dataset that's typically the bottom 30+ low-cardinality categoricals.
+
+Don't run RFE blindly; with 60+ features and 210K rows it's slow and noisy. MI + a tree-importance sanity check is enough.
+
+## Step 7: Preprocessing
+
+\`\`\`python
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+
+numeric_cols = ["days_since_last_inspection", "weighted_prior_critical",
+                "prior_critical_count", "complaints_90d", "complaint_neg_sentiment",
+                "county_prev_6mo", "seating_capacity"]
+categorical_cols = ["cuisine_type", "ownership_type", "county"]
+
+pre = ColumnTransformer([
+    ("num", StandardScaler(), numeric_cols),
+    ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=50), categorical_cols),
+], remainder="passthrough")
+\`\`\`
+
+For tree models (which will probably win) the StandardScaler is harmless but unnecessary. We keep it because we'll also try Logistic Regression as a benchmark and it must scale.
+
+## Step 8: Train/Test Split
+
+**Time-based split, not random.** Train on 2019-01 → 2023-12, validate on 2024-01 → 2024-06, test on 2024-07 → 2024-12. Random splits leak future information through the recency-weighted prior-violation features and would inflate metrics by 5-10 PR-AUC points. Group by \`restaurant_id\` within the time split — never split a single restaurant across train/test.
+
+## Step 9: Baseline
+
+| Baseline | PR-AUC | Recall@3500 |
+|---|---|---|
+| Predict majority class (always 0) | 0.07 | 0.00 |
+| Rule: \`prior_critical_count > 0 OR complaints_90d > 2\` | 0.31 | 0.42 |
+
+Our ML model **must** beat the rule baseline (0.31 PR-AUC) by a meaningful margin — if it doesn't, ship the rule.
+
+## Step 10: Try Multiple Models with CV
+
+\`\`\`python
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from lightgbm import LGBMClassifier
+from xgboost import XGBClassifier
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score
+
+models = {
+    "logreg":  LogisticRegression(C=1.0, class_weight="balanced", max_iter=2000),
+    "rf":      RandomForestClassifier(n_estimators=400, class_weight="balanced", n_jobs=-1),
+    "gbm":     GradientBoostingClassifier(n_estimators=300),
+    "lgbm":    LGBMClassifier(n_estimators=600, scale_pos_weight=13.0),  # ≈ (1-0.07)/0.07
+    "xgb":     XGBClassifier(n_estimators=600, scale_pos_weight=13.0, eval_metric="aucpr"),
+}
+
+cv = TimeSeriesSplit(n_splits=5)
+for name, m in models.items():
+    scores = cross_val_score(make_pipeline(pre, m), X, y, cv=cv, scoring="average_precision")
+    print(f"{name:8s}  PR-AUC = {scores.mean():.3f} ± {scores.std():.3f}")
+\`\`\`
+
+Typical results on this kind of dataset: \`lgbm\` ≈ 0.48, \`xgb\` ≈ 0.47, \`rf\` ≈ 0.42, \`gbm\` ≈ 0.45, \`logreg\` ≈ 0.34. LightGBM wins because of categorical handling + speed.
+
+## Step 11: Handle Imbalance
+
+\`scale_pos_weight = 13\` (= negative/positive ratio) on the gradient boosters. **Don't SMOTE** — synthetic samples in a feature space that includes high-cardinality categoricals (cuisine, county) creates incoherent records. \`class_weight="balanced"\` for the linear baseline. The real lever for inspector-routing isn't the loss function — it's **threshold tuning** in Step 13, because we have a fixed inspection capacity per quarter.
+
+## Step 12: Hyperparameter Tuning
+
+\`\`\`python
+import optuna
+
+def objective(trial):
+    params = {
+        "n_estimators":      trial.suggest_int("n_estimators", 300, 1200),
+        "learning_rate":     trial.suggest_float("learning_rate", 0.01, 0.2, log=True),
+        "num_leaves":        trial.suggest_int("num_leaves", 16, 128),
+        "min_child_samples": trial.suggest_int("min_child_samples", 20, 300),
+        "reg_alpha":         trial.suggest_float("reg_alpha", 1e-3, 10, log=True),
+        "reg_lambda":        trial.suggest_float("reg_lambda", 1e-3, 10, log=True),
+        "scale_pos_weight":  13.0,
+    }
+    model = LGBMClassifier(**params, n_jobs=-1)
+    return cross_val_score(model, X_tr, y_tr, cv=tscv, scoring="average_precision").mean()
+
+study = optuna.create_study(direction="maximize")
+study.optimize(objective, n_trials=80, timeout=3600)
+\`\`\`
+
+Constrain \`num_leaves\` to keep the model interpretable for FOIA — wide leaves blow up SHAP variance.
+
+## Step 13: Threshold Tuning / Calibration
+
+This is the highest-leverage step here. Inspector capacity = 3,500 visits/quarter, so we operate **at a fixed budget**, not at a fixed threshold. Pick the threshold that puts exactly 3,500 restaurants above it on the validation set:
+
+\`\`\`python
+probs_val = model.predict_proba(X_val)[:, 1]
+threshold = np.sort(probs_val)[-3500]            # top-3500 by score
+
+# Calibration check — required for FOIA defensibility
+from sklearn.calibration import calibration_curve, CalibratedClassifierCV
+
+# Inspect first
+prob_true, prob_pred = calibration_curve(y_val, probs_val, n_bins=10)
+plt.plot(prob_pred, prob_true, marker="o"); plt.plot([0,1],[0,1], "k--")
+
+# If miscalibrated (typical for LGBM with scale_pos_weight), wrap with isotonic
+calibrated = CalibratedClassifierCV(model, cv="prefit", method="isotonic")
+calibrated.fit(X_val, y_val)
+\`\`\`
+
+LightGBM with \`scale_pos_weight\` is almost always over-confident — isotonic calibration on a held-out fold is mandatory before you publish a "probability of critical violation" number.
+
+## Step 14: Ensemble / Stacking
+
+**No.** On this dataset, stacking LGBM + XGB + LogReg buys ≈ 0.005 PR-AUC for 3× the inference cost and a much harder-to-explain model. Ship the calibrated LightGBM. If the team wants the extra 0.5%, revisit after 6 months of production data.
+
+## Step 15: Final Evaluation on Test Set
+
+Run **once** on the held-out 2024-07 → 2024-12 set:
+
+| Metric | Value | vs. Baseline |
+|---|---|---|
+| PR-AUC | 0.51 | +0.20 over rule |
+| Recall@3500 | 0.68 | +0.26 over rule |
+| Precision@3500 | 0.21 | (3× the base rate) |
+| Brier score | 0.058 | well-calibrated |
+
+Cost analysis: at recall 0.68, we catch 68% of critical violations vs. ~42% under the random-rotation status quo. If 1 of those prevents an outbreak per year (~$200K cost), the model pays for itself ~10× over.
+
+## Step 16: Explainability
+
+\`\`\`python
+import shap
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)
+
+# Per-restaurant explanation — for FOIA + inspector dispatch sheet
+shap.force_plot(explainer.expected_value, shap_values[i], X_test.iloc[i])
+\`\`\`
+
+Each restaurant on the inspector's quarterly list comes with its top-3 SHAP contributions. Output format: "*Risk score 0.41 — driven by: (1) 2 prior critical violations in past 12 months, (2) 14 customer complaints in past 90 days, (3) days-since-last-inspection = 412.*"
+
+## Step 17: Deployment Considerations
+
+- **Latency / cadence:** quarterly batch job, no real-time requirement. Run on Saturday before the Monday inspector dispatch.
+- **Retraining:** every 6 months on a rolling 5-year window. Sooner if PR-AUC on the trailing 30-day stream drops below 0.40.
+- **Drift monitoring:** PSI on \`complaint_neg_sentiment\` and \`county_prev_6mo\` (most volatile). Alert if PSI > 0.2.
+- **Fairness audit:** check Recall@3500 separately for chain vs. independent. If gap > 5pp, recalibrate per-group or post-process the threshold.
+- **Feedback-loop monitoring:** the score will *reduce* inspections of low-risk restaurants, biasing future training data. Reserve 10% random inspections per quarter to keep the training distribution honest.
+
+## Summary: What Made This Expert-Level
+
+| Beginner Would Do | Expert Did |
+|---|---|
+| Use ROC-AUC as primary metric | Use PR-AUC + recall@k because of 7% base rate and fixed inspector capacity |
+| Random train/test split | Time-based split; group by \`restaurant_id\`; reserve 2024 H2 for held-out test |
+| Keep \`inspector_id\` as a feature | Drop it — it's a confounder for outcome, not a property of the restaurant |
+| Impute missingness with median | Add a missingness flag; the missingness itself predicts the outcome |
+| SMOTE to fix imbalance | \`scale_pos_weight\` on tree models, threshold-tune at fixed inspector capacity |
+| Tune at threshold = 0.5 | Tune at top-3500-by-score (the actual operational constraint) |
+| Trust raw LGBM probabilities | Isotonic calibration on validation fold before publishing |
+| Stack three models for +0.5% | Ship one calibrated LightGBM — explainable, FOIA-defensible |
+| One-time fairness check | Per-quarter Recall@3500 gap audit; recalibrate if drift > 5pp |
+| Skip the feedback-loop concern | Reserve 10% random inspections to keep training data honest |
+| Feed raw demographics | Drop them; engineer location-level signals that aren't proxies for race/income |
+| One-shot explanation at training | Per-restaurant SHAP attributions ship with every dispatch list |
+
+---
+
+# Compared to Your Attempt
+
+**What you got right.** You correctly identified this as classification with imbalance, and you flagged the cost asymmetry between missed violations and unnecessary inspections — that framing drives the metric choice (PR-AUC, not ROC-AUC) and the threshold strategy (fixed capacity, not fixed cutoff). Good instinct on tree-based models being the right family for mixed types.
+
+**What you missed.** Three things matter most. First, the time-based split — random splits on this data leak the future through your recency-weighted features and inflate scores by 5-10 PR-AUC points; this is the single biggest correctness mistake learners make on operational ML problems. Second, treating \`inspector_id\` as a feature — it's an outcome confounder, not a property of the restaurant, and including it teaches the model the wrong thing. Third, you didn't address the **feedback-loop risk**: once you start using the model to allocate inspections, the training distribution shifts, and the model degrades silently unless you reserve a random-inspection control sample.
+
+**One thing to internalize.** When the deployment pattern is "rank and pick top-k under a fixed budget", the metric is **recall@k** and the right tuning happens at the threshold layer, not the loss layer. Imbalance doesn't get fixed by SMOTE here — it gets fixed by tuning where you cut the ranked list. This pattern recurs constantly: fraud queues, marketing audiences, content moderation, lead scoring. Recognize the shape and the right toolkit follows.`;

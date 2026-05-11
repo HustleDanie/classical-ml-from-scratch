@@ -1,0 +1,27 @@
+{
+  "tracks": [
+    {
+      "id": "phases",
+      "title": "Pipeline Phases",
+      "subtitle": "Tackle each step of the pipeline systematically.",
+      "articles": [
+        "04_phase_1_understand_problem",
+        "05_phase_2_data_exploration_cleaning",
+        "06_phase_3_feature_selection_preprocessing",
+        "07_phase_4_model_selection_training",
+        "08_phase_5_optimization",
+        "09_phase_6_evaluation_validation",
+        "10_phase_7_deployment"
+      ]
+    }
+  ],
+  "summaries": {
+    "04_phase_1_understand_problem": "Read the brief, inventory the data, pick the metric — the 5% of project time that determines the other 95%.",
+    "05_phase_2_data_exploration_cleaning": "EDA, cleaning, feature engineering — the longest, highest-leverage phase. 40% of project time.",
+    "06_phase_3_feature_selection_preprocessing": "Narrow the features, transform each column, split into train/test — in the right order.",
+    "07_phase_4_model_selection_training": "Baseline, bake-off, model selection, imbalance handling, target transformation — the biggest chapter.",
+    "08_phase_5_optimization": "Hyperparameter tuning + ensembling. The phase beginners over-invest in.",
+    "09_phase_6_evaluation_validation": "Final test evaluation, threshold tuning, calibration, explainability, fairness audit.",
+    "10_phase_7_deployment": "Persist artefacts; address the 8 production concerns. Model isn't done until it's been observed in production."
+  }
+}
