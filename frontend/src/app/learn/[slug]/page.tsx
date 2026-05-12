@@ -8,6 +8,7 @@ import {
   readLearnArticle,
 } from '@/lib/content';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { ReadingProgress } from '@/components/ReadingProgress';
 
 export function generateStaticParams() {
   // Only prerender slugs whose files actually exist; "coming soon" stubs
@@ -51,6 +52,7 @@ export default async function LearnArticlePage({ params }: PageProps) {
 
   return (
     <>
+      <ReadingProgress />
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
         <div className="relative max-w-4xl mx-auto px-4 md:px-6">
           <Link

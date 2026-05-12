@@ -83,7 +83,7 @@ export default function LearnPage() {
                 <li key={a.slug}>
                   <Link
                     href={`/learn/${a.slug}`}
-                    className="group flex h-full flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-5 hover:border-emerald-600 dark:hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors"
+                    className="group flex h-full flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-5 hover:border-emerald-600 dark:hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-emerald-950/40 transition-all duration-200"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">

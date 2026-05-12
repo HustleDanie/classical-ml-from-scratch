@@ -14,6 +14,7 @@ import {
   readHowItWorks,
 } from '@/lib/content';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { ReadingProgress } from '@/components/ReadingProgress';
 import { CodeBlock } from '@/components/CodeBlock';
 import { PlotGallery } from '@/components/PlotGallery';
 import { captionFromFilename } from '@/lib/captions';
@@ -78,6 +79,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
 
   return (
     <>
+      <ReadingProgress />
       {/* Hero */}
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
         <div className="relative max-w-5xl mx-auto px-4 md:px-6">

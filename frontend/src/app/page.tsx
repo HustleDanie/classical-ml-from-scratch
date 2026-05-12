@@ -28,7 +28,7 @@ export default function Home() {
           {/* LEARN card */}
           <Link
             href="/learn"
-            className="group relative block border-2 border-black dark:border-white bg-white dark:bg-gray-900 text-black dark:text-white p-8 md:p-10 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-600 dark:hover:border-emerald-400 transition-colors"
+            className="group relative block border-2 border-black dark:border-white bg-white dark:bg-gray-900 text-black dark:text-white p-8 md:p-10 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-600 dark:hover:border-emerald-400 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-emerald-950/50 transition-all duration-200"
           >
             <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-black dark:border-white group-hover:border-emerald-600 dark:group-hover:border-emerald-400" />
             <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-black dark:border-white group-hover:border-emerald-600 dark:group-hover:border-emerald-400" />
@@ -58,7 +58,7 @@ export default function Home() {
           {/* PRACTICE card */}
           <Link
             href="/practice"
-            className="group relative block border-2 border-black dark:border-white bg-white dark:bg-gray-900 text-black dark:text-white p-8 md:p-10 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-600 dark:hover:border-emerald-400 transition-colors"
+            className="group relative block border-2 border-black dark:border-white bg-white dark:bg-gray-900 text-black dark:text-white p-8 md:p-10 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-600 dark:hover:border-emerald-400 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-emerald-950/50 transition-all duration-200"
           >
             <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-black dark:border-white group-hover:border-emerald-600 dark:group-hover:border-emerald-400" />
             <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-black dark:border-white group-hover:border-emerald-600 dark:group-hover:border-emerald-400" />
