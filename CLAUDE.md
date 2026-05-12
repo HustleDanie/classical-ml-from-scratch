@@ -85,7 +85,12 @@ No Anthropic SDK or any API runtime — the site is **fully static**. GitHub Pag
 
 ## Design system
 
-See `.claude/skills/frontend-design/SKILL.md` for the full guide. Highlights:
+Two relevant docs:
+
+- **`frontend/DESIGN_SYSTEM.md`** — project-specific reference: this site's exact palette, typography, card patterns, spacing rhythm, motion vocabulary, and "don't list". Read this before adding components or changing visual design.
+- **`.claude/skills/frontend-design/SKILL.md`** — the Anthropic-published `frontend-design` skill (generic creative-direction guidance for any new frontend work). Invoke when starting a from-scratch design; constrain its output with the project doc above.
+
+Highlights from `DESIGN_SYSTEM.md`:
 
 - **Light mode**: white background, gray-200/300 borders, gray-500/600 muted text, black accents.
 - **Dark mode**: neutral charcoal (zinc-900 / zinc-800 / zinc-700) — NO blue cast, NO pure black. Linear/Notion/Vercel-style.
