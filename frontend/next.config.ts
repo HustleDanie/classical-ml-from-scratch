@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // KaTeX-heavy scenario pages exceed the default 60s on slow local machines.
+  // CI (Linux) finishes well under this limit; bumping for local parity.
+  staticPageGenerationTimeout: 180,
   turbopack: {
     root: path.resolve(__dirname),
   },

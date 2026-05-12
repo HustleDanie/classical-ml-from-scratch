@@ -1,4 +1,3 @@
-import { HeroGrid } from '@/components/HeroGrid';
 import { PracticeWorkspace } from '@/components/PracticeWorkspace';
 
 export const metadata = {
@@ -11,7 +10,6 @@ export default function PracticePage() {
   return (
     <>
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
-        <HeroGrid />
         <div className="relative max-w-4xl mx-auto px-4 md:px-6">
           <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-2">
             ACTIVE LEARNING

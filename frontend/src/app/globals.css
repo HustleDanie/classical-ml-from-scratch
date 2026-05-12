@@ -32,21 +32,43 @@
 }
 
 :root.dark, .dark {
-  --background: #000000;
-  --foreground: #fafafa;
-  --card: #0a0a0a;
-  --card-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #171717;
-  --secondary: #262626;
-  --secondary-foreground: #fafafa;
-  --muted: #262626;
-  --muted-foreground: #a3a3a3;
-  --accent: #262626;
-  --accent-foreground: #fafafa;
-  --border: #262626;
-  --input: #262626;
-  --ring: #d4d4d4;
+  /* ----------------------------------------------------------------------
+   * Dark mode = neutral charcoal (Linear / Notion / Vercel style).
+   *
+   * Pure neutrals — no blue cast, no green cast, no warm cast. The
+   * emerald accent (used on hovers, CTAs, focus rings) provides life
+   * and ties the dark mode to the same accent used in light mode.
+   *
+   * We override Tailwind's --color-black / --color-gray-* variables so
+   * every existing `dark:bg-black`, `dark:bg-gray-900`, `dark:border-
+   * gray-800`, etc. utility resolves to the charcoal palette
+   * automatically — no per-component edits.
+   * -------------------------------------------------------------------- */
+  --background: #18181b;            /* zinc-900 — body */
+  --foreground: #e4e4e7;            /* zinc-200 — body text */
+  --card: #27272a;                  /* zinc-800 — one step elevated */
+  --card-foreground: #e4e4e7;
+  --primary: #e4e4e7;
+  --primary-foreground: #18181b;
+  --secondary: #3f3f46;             /* zinc-700 */
+  --secondary-foreground: #e4e4e7;
+  --muted: #3f3f46;
+  --muted-foreground: #a1a1aa;      /* zinc-400 */
+  --accent: #3f3f46;
+  --accent-foreground: #e4e4e7;
+  --border: #3f3f46;
+  --input: #3f3f46;
+  --ring: #34d399;                  /* emerald-400 — focus accent */
+
+  /* Tailwind utility re-mapping for dark mode. Light-mode usage of these
+   * tokens is unaffected because the overrides live inside the .dark
+   * scope. The palette below is Tailwind's zinc scale verbatim. */
+  --color-black:    #18181b;        /* dark:bg-black, dark:border-black, … */
+  --color-gray-900: #27272a;        /* dark:bg-gray-900 (cards)            */
+  --color-gray-800: #3f3f46;        /* dark:border-gray-800                */
+  --color-gray-700: #52525b;        /* dark:border-gray-700 / hover        */
+  --color-gray-400: #a1a1aa;        /* dark:text-gray-400 (muted)          */
+  --color-gray-300: #d4d4d8;        /* dark:text-gray-300 (body)           */
 }
 
 * {

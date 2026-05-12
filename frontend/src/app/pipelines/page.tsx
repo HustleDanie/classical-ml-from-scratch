@@ -1,6 +1,5 @@
 import { PIPELINES } from '@/lib/pipelines';
 import { PipelineCard } from '@/components/PipelineCard';
-import { HeroGrid } from '@/components/HeroGrid';
 
 export const metadata = {
   title: 'Pipelines | Classical ML From Scratch',
@@ -11,7 +10,6 @@ export default function PipelinesIndexPage() {
   return (
     <>
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
-        <HeroGrid />
         <div className="relative max-w-5xl mx-auto px-4 md:px-6">
           <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-2">
             END-TO-END / PRODUCTION-LIKE

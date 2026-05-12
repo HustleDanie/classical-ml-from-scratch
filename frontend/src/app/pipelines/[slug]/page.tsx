@@ -11,7 +11,6 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { CodeBlock } from '@/components/CodeBlock';
 import { PlotGallery } from '@/components/PlotGallery';
 import { captionFromFilename } from '@/lib/captions';
-import { HeroGrid } from '@/components/HeroGrid';
 
 export function generateStaticParams() {
   return PIPELINES.map((p) => ({ slug: p.slug }));
@@ -52,7 +51,6 @@ export default async function PipelinePage({ params }: PageProps) {
   return (
     <>
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
-        <HeroGrid />
         <div className="relative max-w-5xl mx-auto px-4 md:px-6">
           <Link
             href="/pipelines"

@@ -9,7 +9,6 @@ import {
   type ScenarioType,
 } from '@/lib/content';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { HeroGrid } from '@/components/HeroGrid';
 
 const TYPE_LABEL: Record<ScenarioType, { label: string; accent: string }> = {
   classification: { label: 'Classification', accent: 'text-emerald-500' },
@@ -92,7 +91,6 @@ export default async function ScenarioDetailPage({ params }: PageProps) {
   return (
     <>
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
-        <HeroGrid />
         <div className="relative max-w-4xl mx-auto px-4 md:px-6">
           <Link
             href="/scenarios"

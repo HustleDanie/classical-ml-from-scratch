@@ -17,7 +17,6 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { CodeBlock } from '@/components/CodeBlock';
 import { PlotGallery } from '@/components/PlotGallery';
 import { captionFromFilename } from '@/lib/captions';
-import { HeroGrid } from '@/components/HeroGrid';
 import { KeyFormula } from '@/components/KeyFormula';
 import { SectionStripNav, type SectionLink } from '@/components/SectionStripNav';
 import { CurriculumTopic } from '@/components/CurriculumTopic';
@@ -81,7 +80,6 @@ export default async function AlgorithmPage({ params }: PageProps) {
     <>
       {/* Hero */}
       <section className="relative py-12 md:py-16 overflow-hidden border-b border-gray-200 dark:border-gray-800">
-        <HeroGrid />
         <div className="relative max-w-5xl mx-auto px-4 md:px-6">
           <Link
             href="/algorithms"
