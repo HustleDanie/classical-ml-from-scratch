@@ -66,49 +66,19 @@ console.log('[sync-content] repo root:    ', REPO_ROOT);
 // Reset destinations. content/learn/ is hand-written and tracked in git —
 // preserve it. Everything else under content/ is regenerated below.
 rmDir(PUBLIC_PLOTS);
-for (const sub of ['algorithms', 'how_it_works', 'scenarios', 'pipelines', 'guides']) {
+for (const sub of ['how_it_works', 'scenarios', 'pipelines', 'guides']) {
   rmDir(path.join(CONTENT, sub));
 }
 ensureDir(PUBLIC_PLOTS);
 ensureDir(CONTENT);
 
-// 1. Algorithm plots + source/readme
-const algorithmsDir = path.join(REPO_ROOT, 'algorithms');
-let plotsCopied = 0;
-let algoFilesCopied = 0;
-for (const entry of listDir(algorithmsDir)) {
-  if (!entry.isDirectory()) continue;
-  const folder = entry.name;
-  const src = path.join(algorithmsDir, folder);
+// 1. Algorithm sync — REMOVED. The /algorithms route was deleted from the
+// site (Phase pages are the canonical learning surface now). Algorithm
+// plots and Python source still live in `/algorithms/<name>/` at the
+// repo root but are no longer copied into the frontend.
 
-  // plots
-  const plotsSrc = path.join(src, 'plots');
-  const plotsDest = path.join(PUBLIC_PLOTS, folder);
-  plotsCopied += copyDir(plotsSrc, plotsDest, (name) => /\.(png|jpe?g|svg)$/i.test(name));
-
-  // README + .py
-  const algoContentDest = path.join(CONTENT, 'algorithms', folder);
-  for (const f of listDir(src)) {
-    if (f.isFile() && (f.name === 'README.md' || f.name.endsWith('.py'))) {
-      copyFile(path.join(src, f.name), path.join(algoContentDest, f.name));
-      algoFilesCopied += 1;
-    }
-  }
-}
-console.log(`[sync-content] copied ${plotsCopied} algorithm plots`);
-console.log(`[sync-content] copied ${algoFilesCopied} algorithm source files`);
-
-// 2. HOW_IT_WORKS markdown
-const howItWorksDest = path.join(CONTENT, 'how_it_works');
-let howCount = 0;
-for (const f of listDir(REPO_ROOT)) {
-  if (f.isFile() && /^HOW_IT_WORKS_.*\.md$/i.test(f.name)) {
-    const slug = f.name.replace(/\.md$/i, '');
-    copyFile(path.join(REPO_ROOT, f.name), path.join(howItWorksDest, `${slug}.md`));
-    howCount += 1;
-  }
-}
-console.log(`[sync-content] copied ${howCount} HOW_IT_WORKS files`);
+// 2. HOW_IT_WORKS markdown — REMOVED for the same reason. Source files
+// have been deleted from the repo root.
 
 // 3. Expert scenarios — pull from expert_scenarios/{classification,regression}/catalog/*.md
 //    Output to content/scenarios/<type>/<slug>.md.
@@ -195,21 +165,7 @@ for (const entry of listDir(pipelinesSrc)) {
 console.log(`[sync-content] copied ${pipePlots} pipeline plots`);
 console.log(`[sync-content] copied ${pipeFiles} pipeline source files`);
 
-// 5. Top-level guide markdown (optional, for reference rendering)
-const guidesDest = path.join(CONTENT, 'guides');
-let guideCount = 0;
-for (const f of listDir(REPO_ROOT)) {
-  if (
-    f.isFile() &&
-    /\.md$/i.test(f.name) &&
-    !/^HOW_IT_WORKS_/i.test(f.name) &&
-    !/^EXPERT_SCENARIO_/i.test(f.name) &&
-    f.name !== 'README.md'
-  ) {
-    copyFile(path.join(REPO_ROOT, f.name), path.join(guidesDest, f.name));
-    guideCount += 1;
-  }
-}
-console.log(`[sync-content] copied ${guideCount} guide files`);
+// 5. Top-level guide markdown — REMOVED. All top-level guide .md files
+// have been deleted; the canonical reference is now content/learn/.
 
 console.log('[sync-content] done.');

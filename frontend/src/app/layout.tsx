@@ -20,20 +20,17 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Classical ML From Scratch | A NumPy Portfolio',
+  title: 'Classical ML From Scratch',
   description:
-    '12 classical machine learning algorithms implemented from scratch with NumPy, verified against scikit-learn — plus 3 production pipelines and 178 visualisations.',
+    'A beginner-grade walkthrough of the classical ML pipeline — seven phases that take you from problem brief to deployed model. 155 expert scenarios + 3 production pipelines.',
   keywords: [
     'machine learning',
     'classical ML',
-    'from scratch',
+    'ML pipeline',
+    'beginners guide',
+    'expert scenarios',
     'numpy',
     'scikit-learn',
-    'data science portfolio',
-    'linear regression',
-    'gradient boosting',
-    'XGBoost',
-    'LightGBM',
   ],
 };
 

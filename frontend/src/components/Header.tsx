@@ -8,7 +8,6 @@ import { ThemeToggle } from './ThemeToggle';
 const NAV_ITEMS: { href: string; label: string; external?: boolean }[] = [
   { href: '/learn', label: 'Learn' },
   { href: '/practice', label: 'Practice' },
-  { href: '/algorithms', label: 'Algorithms' },
 ];
 
 export function Header() {

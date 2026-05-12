@@ -22,9 +22,9 @@ export function Footer() {
               </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs">
-              12 classical machine-learning algorithms implemented from raw NumPy and
-              verified against scikit-learn — plus 3 production pipelines and 155 expert
-              scenarios.
+              A beginner-grade walkthrough of the classical ML pipeline — seven phases,
+              155 expert scenarios, and three end-to-end production pipelines on real
+              datasets.
             </p>
           </div>
 
@@ -48,14 +48,6 @@ export function Footer() {
                   className="text-gray-600 dark:text-gray-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                 >
                   Practice with a sample brief
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/algorithms"
-                  className="text-gray-600 dark:text-gray-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
-                >
-                  12 algorithms
                 </Link>
               </li>
               <li>

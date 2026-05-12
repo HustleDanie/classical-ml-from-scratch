@@ -1,21 +1,19 @@
 # Classical ML From Scratch — Project Notes for Claude
 
-A two-part project:
-1. A Python library of 12 classical ML algorithms implemented from scratch (NumPy), verified against scikit-learn, with 178 plots and 3 production pipelines.
-2. A Next.js 16 / React 19 / Tailwind 4 frontend that surfaces the library + a beginner pipeline guide + 155 expert scenarios, deployed to GitHub Pages.
+The site is a beginner-grade walkthrough of the classical-ML pipeline: a 7-phase Learn track, a sample-mode Practice page, a 155-entry expert-scenario catalog, and 3 production pipelines. Fully static, deployed to GitHub Pages.
 
 The live site: **https://hustledanie.github.io/classical-ml-from-scratch/**
+
+Note on the Python library: 12 classical-ML algorithms still live in `/algorithms/<name>/*.py` at the repo root with their plots. They are no longer surfaced on the site — the `/algorithms` route, the per-algorithm READMEs, and all top-level `HOW_IT_WORKS_*.md` / `MODEL_SELECTION_GUIDE_*.md` etc. guide files have been deleted to keep the surface lean. The Python code remains as a code library for anyone reading the repo directly.
 
 ---
 
 ## Repo layout
 
 ```
-/algorithms/              # 12 classical algorithms — Python + README + plots
+/algorithms/              # Python implementations + plots (no longer on the site)
 /expert_scenarios/        # 155 walkthroughs (classification + regression catalogs)
 /real_world_practice/     # 3 production pipelines (Titanic, Ames Housing, NLP)
-/HOW_IT_WORKS_*.md        # Per-algorithm intuition + math (top-level)
-/MODEL_SELECTION_GUIDE_*.md, /FEATURE_SELECTION_GUIDE.md, etc.
 
 /frontend/                # Next.js static site
   content/                # Synced from parent repo via scripts/sync-content.mjs (gitignored)
@@ -24,9 +22,11 @@ The live site: **https://hustledanie.github.io/classical-ml-from-scratch/**
   scripts/sync-content.mjs
   src/app/                # Next.js App Router pages
   src/components/         # React components
-  src/lib/                # Helpers (content.ts, algorithms.ts, etc.)
+  src/lib/                # Helpers (content.ts, pipelines.ts, etc.)
+  DESIGN_SYSTEM.md        # Project-specific design conventions
 
-/.github/workflows/deploy.yml   # GitHub Pages deploy
+/.claude/skills/frontend-design/   # Anthropic-published frontend-design skill
+/.github/workflows/deploy.yml      # GitHub Pages deploy
 ```
 
 ---
@@ -54,15 +54,11 @@ $env:NEXT_PUBLIC_BASE_PATH = "/classical-ml-from-scratch"; npx next build
 
 `frontend/scripts/sync-content.mjs` runs on every `npm run build` / `npm run dev` (via `prebuild` / `predev`). It:
 
-1. **Nukes** specific subdirs of `frontend/content/` (algorithms, how_it_works, scenarios, pipelines, guides) and `frontend/public/plots/`.
+1. **Nukes** the synced subdirs of `frontend/content/` (`scenarios`, `pipelines`) and `frontend/public/plots/`.
 2. **Preserves** `frontend/content/learn/` — hand-written, tracked in git.
 3. **Repopulates** from the parent repo:
-   - `/algorithms/<name>/{README.md, *.py}` → `frontend/content/algorithms/<name>/`
-   - `/algorithms/<name>/plots/*` → `frontend/public/plots/<name>/`
-   - `/HOW_IT_WORKS_*.md` → `frontend/content/how_it_works/`
    - `/expert_scenarios/<type>/catalog/*.md` → `frontend/content/scenarios/<type>/`
    - `/real_world_practice/<name>/` → `frontend/content/pipelines/<name>/` + plots
-   - Top-level guide `*.md` → `frontend/content/guides/`
 
 The `.gitignore` uses `content/*` (not `content/`) so the `!content/learn/**` re-include rules actually take effect — git won't descend into a fully-ignored dir.
 
@@ -110,15 +106,13 @@ Highlights from `DESIGN_SYSTEM.md`:
 /learn/04_phase_1_understand_problem   Phase 1
 /learn/05_phase_2_data_exploration_cleaning    ... through 10_phase_7_deployment
 /practice                      Offline sample-mode brief + reveal solution
-/algorithms                    12-card catalog
-/algorithms/[slug]             Per-algorithm deep dive
 /scenarios                     155 walkthroughs catalog
 /scenarios/[type]/[slug]       Per-scenario
 /pipelines                     3 production pipelines
 /pipelines/[slug]              Per-pipeline
 ```
 
-The top nav exposes only **Learn / Practice / Algorithms**. Scenarios, Pipelines, and the GitHub link were intentionally removed from the nav (the routes still work via direct URL).
+The top nav exposes only **Learn / Practice**. The `/algorithms` route was deleted entirely. Scenarios, Pipelines, and the GitHub link were intentionally removed from the nav (the scenarios + pipelines routes still work via direct URL and are linked from the Footer).
 
 ---
 

@@ -1,17 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, RefreshCcw, FlaskConical, Send } from 'lucide-react';
+import { Loader2, RefreshCcw, FlaskConical, NotebookPen, Send } from 'lucide-react';
+import Link from 'next/link';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { SAMPLE_BRIEF, SAMPLE_SOLUTION } from '@/lib/practice-sample';
 
 interface PersistedState {
   brief: string;
-  attempt: string;
   solution: string;
 }
 
-const STORAGE_KEY = 'practice.workspace.v2';
+const STORAGE_KEY = 'practice.workspace.v3';
 
 function loadPersisted(): PersistedState | null {
   if (typeof window === 'undefined') return null;
@@ -33,35 +33,40 @@ function savePersisted(state: PersistedState) {
   }
 }
 
+const PHASE_LIST: { num: string; title: string }[] = [
+  { num: '01', title: 'Understand the Problem' },
+  { num: '02', title: 'Data Exploration & Cleaning' },
+  { num: '03', title: 'Feature Selection & Preprocessing' },
+  { num: '04', title: 'Model Selection & Training' },
+  { num: '05', title: 'Optimization' },
+  { num: '06', title: 'Evaluation & Validation' },
+  { num: '07', title: 'Deployment' },
+];
+
 export function PracticeWorkspace() {
   const [brief, setBrief] = useState('');
-  const [attempt, setAttempt] = useState('');
   const [solution, setSolution] = useState('');
   const [revealing, setRevealing] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from localStorage on mount.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const saved = loadPersisted();
     if (saved) {
       setBrief(saved.brief);
-      setAttempt(saved.attempt);
       setSolution(saved.solution);
     }
     setHydrated(true);
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Persist after hydration.
   useEffect(() => {
     if (!hydrated) return;
-    savePersisted({ brief, attempt, solution });
-  }, [hydrated, brief, attempt, solution]);
+    savePersisted({ brief, solution });
+  }, [hydrated, brief, solution]);
 
   function handleLoadSample() {
     setBrief(SAMPLE_BRIEF);
-    setAttempt('');
     setSolution('');
   }
 
@@ -80,7 +85,6 @@ export function PracticeWorkspace() {
 
   function handleReset() {
     setBrief('');
-    setAttempt('');
     setSolution('');
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(STORAGE_KEY);
@@ -95,8 +99,8 @@ export function PracticeWorkspace() {
           Step 01 — Load the brief
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-          Click below to load a sample classical ML business brief. Walk through it,
-          write your approach, then reveal the 17-step expert solution.
+          Click below to load a sample classical ML business brief. Read it, work through
+          the seven phases on paper, then reveal the expert solution to compare.
         </p>
 
         <div className="flex flex-wrap gap-3">
@@ -109,7 +113,7 @@ export function PracticeWorkspace() {
             {brief ? 'Reload Sample Brief' : 'Load Sample Brief'}
           </button>
 
-          {(brief || attempt || solution) && (
+          {(brief || solution) && (
             <button
               type="button"
               onClick={handleReset}
@@ -133,45 +137,59 @@ export function PracticeWorkspace() {
         </section>
       )}
 
-      {/* Attempt panel */}
+      {/* Pen-and-paper prompt */}
       {brief && (
         <section className="border border-gray-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
           <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-3">
             Step 03 — Your Approach
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-            Before you read the model answer, write down how you&apos;d tackle this.
-            Outline the problem type, the metric you&apos;d optimise, what you&apos;d
-            check first, the model family you&apos;d try, and the trap you&apos;d
-            watch for. The thinking is the point — even a rough sketch beats none.
-          </p>
-          <textarea
-            value={attempt}
-            onChange={(e) => setAttempt(e.target.value)}
-            placeholder="My approach…"
-            rows={10}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-transparent font-mono text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-          />
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled={revealing}
-              onClick={handleRevealSolution}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50"
-            >
-              {revealing ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Send className="w-3.5 h-3.5" />
-              )}
-              Reveal Expert Solution
-            </button>
-            <span className="self-center text-xs text-gray-500 dark:text-gray-400">
-              {attempt.length === 0
-                ? 'Revealing without writing is allowed — but you learn more by writing first.'
-                : `${attempt.split(/\s+/).filter(Boolean).length} words`}
-            </span>
+
+          <div className="flex items-start gap-3 mb-4">
+            <NotebookPen className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-gray-700 dark:text-gray-200">
+              Grab a piece of paper. Work through the brief by writing one or two lines for
+              each of the seven phases. The thinking is the point — even a rough sketch
+              beats none.
+            </p>
           </div>
+
+          <ol className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mb-5 text-sm">
+            {PHASE_LIST.map((p) => (
+              <li key={p.num} className="flex items-baseline gap-3">
+                <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-gray-400 w-7 flex-shrink-0">
+                  {p.num}
+                </span>
+                <Link
+                  href={`/learn/${{
+                    '01': '04_phase_1_understand_problem',
+                    '02': '05_phase_2_data_exploration_cleaning',
+                    '03': '06_phase_3_feature_selection_preprocessing',
+                    '04': '07_phase_4_model_selection_training',
+                    '05': '08_phase_5_optimization',
+                    '06': '09_phase_6_evaluation_validation',
+                    '07': '10_phase_7_deployment',
+                  }[p.num]}`}
+                  className="text-gray-700 dark:text-gray-200 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                >
+                  {p.title}
+                </Link>
+              </li>
+            ))}
+          </ol>
+
+          <button
+            type="button"
+            disabled={revealing}
+            onClick={handleRevealSolution}
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-emerald-600 hover:border-emerald-600 dark:hover:bg-emerald-500 dark:hover:border-emerald-500 transition-colors disabled:opacity-50"
+          >
+            {revealing ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Send className="w-3.5 h-3.5" />
+            )}
+            Reveal Expert Solution
+          </button>
         </section>
       )}
 
