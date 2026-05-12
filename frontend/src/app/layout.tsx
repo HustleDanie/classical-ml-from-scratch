@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { IBM_Plex_Sans, IBM_Plex_Mono, IBM_Plex_Serif } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Header } from '@/components/Header';
@@ -16,6 +16,14 @@ const plexMono = IBM_Plex_Mono({
   weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   variable: '--font-plex-mono',
+  display: 'swap',
+});
+
+const plexSerif = IBM_Plex_Serif({
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-plex-serif',
   display: 'swap',
 });
 
@@ -42,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${plexSans.variable} ${plexMono.variable} font-sans antialiased`}
+        className={`${plexSans.variable} ${plexMono.variable} ${plexSerif.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"

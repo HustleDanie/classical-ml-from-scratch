@@ -6,7 +6,7 @@ This is the project-specific design reference for this site. The **generic** `fr
 
 ## 1 — Aesthetic in one paragraph
 
-Minimalist, technical, intentional. Black-and-white in light mode; **neutral charcoal** (Linear / Notion / Vercel-style — Tailwind zinc) in dark mode. A single brand accent — **emerald** — used identically in both modes for hover states, focus rings, CTAs, and subtle highlights. Typography is **IBM Plex Sans** for everything plus **IBM Plex Mono** for small uppercase tracking labels and code. No decorative grids, no patterns, no gradients. Visual interest comes from precise spacing, careful borders, and motion on interaction (lift on hover, smooth transitions).
+**Editorial, technical, intentional.** Black-and-white in light mode; **neutral charcoal** (Linear / Notion / Vercel-style — Tailwind zinc) in dark mode. A single brand accent — **emerald** — used identically in both modes for hero highlights, hover states, focus rings, CTAs. Typography is a three-font Plex stack: **IBM Plex Serif** for editorial long-form (hero titles, article body, hero paragraphs) so the site reads like a tech-book chapter; **IBM Plex Sans** for UI, headings inside articles, nav, buttons; **IBM Plex Mono** for small uppercase tracking labels and code. No decorative grids, no patterns, no gradients. Visual interest comes from precise spacing, careful borders, motion on interaction (lift on hover), and big editorial typography.
 
 ---
 
@@ -61,13 +61,15 @@ Do not introduce additional chromatic accents beyond these.
 
 ## 3 — Typography
 
-Loaded via `next/font/google` in `layout.tsx`.
+Three fonts via `next/font/google` in `layout.tsx`: **Plex Serif**, **Plex Sans**, **Plex Mono**.
 
-| Where | Font | Tailwind |
+| Where | Font | How to invoke |
 |---|---|---|
-| Body | Plex Sans (400) | default |
-| Headings | Plex Sans (700) | `font-orbitron` (class name is historical — renders Plex Sans Bold + `letter-spacing: -0.01em`) |
-| Page hero H1 / H2 | Plex Sans (700) | `font-orbitron` + `tracking-tight` or `tracking-wider` |
+| Editorial hero titles (home, learn, article header) | Plex Serif (400 / italic) | `font-[family-name:var(--font-plex-serif)]` + large sizes (e.g. `text-5xl md:text-7xl leading-[1.05]`) |
+| Article body text (markdown prose) | Plex Serif (400) | automatic via `.prose-mlfs` |
+| Article H1/H2/H3 (inside markdown) | Plex Sans (600) | automatic via `.prose-mlfs h1/h2/h3` |
+| UI body (cards, nav, footer, controls) | Plex Sans (400) | default — body has `font-sans` |
+| Bold UI headings | Plex Sans (700) | `font-orbitron` (historical class — renders Plex Sans Bold + `letter-spacing: -0.01em`) |
 | Small uppercase labels | Plex Mono (400) | `font-mono` + `text-[10px] tracking-[0.3em] uppercase text-gray-400` |
 | Code / pre | Plex Mono (400) | `font-mono` |
 
@@ -77,6 +79,16 @@ The canonical uppercase mono label class:
 <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400">
   PHASE 01
 </div>
+```
+
+The canonical editorial hero title:
+
+```html
+<h1 className="font-[family-name:var(--font-plex-serif)] text-5xl md:text-7xl leading-[1.05] tracking-tight font-normal">
+  Seven phases.
+  <br />
+  <span className="italic text-emerald-700 dark:text-emerald-300">One playbook.</span>
+</h1>
 ```
 
 ---

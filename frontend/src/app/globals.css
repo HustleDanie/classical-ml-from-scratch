@@ -152,10 +152,14 @@ body {
   box-shadow: 0 20px 40px rgba(255, 255, 255, 0.05);
 }
 
-/* Markdown content styling */
+/* Markdown content styling — editorial reading style.
+   Body paragraphs use Plex Serif for the long-form reading feel
+   (book-chapter cadence). Headings stay in Plex Sans for crispness. */
 .prose-mlfs {
   color: var(--foreground);
-  line-height: 1.7;
+  font-family: var(--font-plex-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.05rem;
+  line-height: 1.75;
 }
 
 .prose-mlfs h1,
@@ -165,22 +169,23 @@ body {
   font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   font-weight: 600;
   letter-spacing: -0.01em;
-  margin-top: 2rem;
+  margin-top: 2.25rem;
   margin-bottom: 1rem;
 }
 
-.prose-mlfs h1 { font-size: 1.875rem; }
+.prose-mlfs h1 { font-size: 1.875rem; line-height: 1.2; }
 .prose-mlfs h2 {
   font-size: 1.5rem;
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.5rem;
 }
-.prose-mlfs h3 { font-size: 1.25rem; }
+.prose-mlfs h3 { font-size: 1.2rem; }
 .prose-mlfs h4 { font-size: 1.05rem; }
 
 .prose-mlfs p {
   margin-bottom: 1rem;
 }
+
 
 .prose-mlfs a {
   color: var(--foreground);
@@ -199,11 +204,16 @@ body {
 .prose-mlfs li { margin-bottom: 0.4rem; }
 
 .prose-mlfs blockquote {
-  border-left: 2px solid var(--foreground);
-  padding-left: 1rem;
-  margin: 1rem 0;
+  border-left: 2px solid #10b981;       /* emerald-500 accent */
+  padding-left: 1.25rem;
+  margin: 1.25rem 0;
   color: var(--muted-foreground);
   font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.65;
+}
+.dark .prose-mlfs blockquote {
+  border-left-color: #34d399;
 }
 
 .prose-mlfs code:not(pre code) {
