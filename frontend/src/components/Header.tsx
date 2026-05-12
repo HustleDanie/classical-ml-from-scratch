@@ -5,17 +5,10 @@ import { motion } from 'framer-motion';
 import { Cpu } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
-const NAV_ITEMS = [
+const NAV_ITEMS: { href: string; label: string; external?: boolean }[] = [
   { href: '/learn', label: 'Learn' },
   { href: '/practice', label: 'Practice' },
   { href: '/algorithms', label: 'Algorithms' },
-  { href: '/pipelines', label: 'Pipelines' },
-  { href: '/scenarios', label: 'Scenarios' },
-  {
-    href: 'https://github.com/HustleDanie/classical-ml-from-scratch',
-    label: 'GitHub',
-    external: true,
-  },
 ];
 
 export function Header() {
