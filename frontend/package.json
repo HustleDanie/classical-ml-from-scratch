@@ -12,6 +12,7 @@
     "sync": "node scripts/sync-content.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.2",
     "framer-motion": "^12.29.2",
     "katex": "^0.16.21",
     "lucide-react": "^0.563.0",

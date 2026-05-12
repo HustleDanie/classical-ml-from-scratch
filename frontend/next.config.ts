@@ -2,27 +2,21 @@ import type { NextConfig } from "next";
 import path from "node:path";
 
 /**
- * Static-export build for GitHub Pages.
+ * Vercel-hosted Next.js app.
  *
- * basePath / assetPrefix are read from env so local `npm run dev` works
- * without paths. CI sets `NEXT_PUBLIC_BASE_PATH=/<repo-name>` for the
- * project-site URL `<user>.github.io/<repo>`.
- *
- * For a user-site (`<user>.github.io`) or a custom domain, leave the env
- * var unset and the basePath becomes empty.
+ * Was a static export for GitHub Pages — now back to a full SSR/SSG hybrid
+ * so we can ship Node.js API routes that hold the ANTHROPIC_API_KEY and
+ * call the Claude API on behalf of the client. Vercel deploys this
+ * automatically from the connected GitHub repo.
  */
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-
 const nextConfig: NextConfig = {
-  output: "export",
-  basePath: basePath || undefined,
-  assetPrefix: basePath ? `${basePath}/` : undefined,
-  trailingSlash: true,
+  // Static-export specific options removed: output, basePath, assetPrefix,
+  // trailingSlash. Vercel handles routing and CDN natively.
   images: {
     unoptimized: true,
   },
-  // KaTeX-heavy scenario pages exceed the default 60s on slow local machines.
-  // CI (Linux) finishes well under this limit; bumping for local parity.
+  // KaTeX-heavy pages exceed the default 60s on slow local machines; CI
+  // and Vercel finish well within the limit.
   staticPageGenerationTimeout: 180,
   turbopack: {
     root: path.resolve(__dirname),

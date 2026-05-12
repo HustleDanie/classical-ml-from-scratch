@@ -1,18 +1,52 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Loader2, RefreshCcw, FlaskConical, NotebookPen, Send } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Loader2,
+  RefreshCcw,
+  FlaskConical,
+  NotebookPen,
+  Send,
+  Sparkles,
+} from 'lucide-react';
 import Link from 'next/link';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { DatasetPreview } from './DatasetPreview';
 import { SAMPLE_BRIEF, SAMPLE_SOLUTION } from '@/lib/practice-sample';
 
+type ScenarioType = 'classification' | 'regression' | 'random';
+type Complexity = 'easy' | 'medium' | 'hard' | 'random';
+
 interface PersistedState {
   brief: string;
   solution: string;
+  isSample: boolean;
 }
 
-const STORAGE_KEY = 'practice.workspace.v3';
+const STORAGE_KEY = 'practice.workspace.v4';
+
+const TYPE_OPTIONS: { value: ScenarioType; label: string }[] = [
+  { value: 'classification', label: 'Classification' },
+  { value: 'regression', label: 'Regression' },
+  { value: 'random', label: 'Random' },
+];
+
+const COMPLEXITY_OPTIONS: { value: Complexity; label: string }[] = [
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+  { value: 'random', label: 'Random' },
+];
+
+const PHASE_LIST = [
+  { num: '01', title: 'Understand the Problem', slug: '04_phase_1_understand_problem' },
+  { num: '02', title: 'Data Exploration & Cleaning', slug: '05_phase_2_data_exploration_cleaning' },
+  { num: '03', title: 'Feature Selection & Preprocessing', slug: '06_phase_3_feature_selection_preprocessing' },
+  { num: '04', title: 'Model Selection & Training', slug: '07_phase_4_model_selection_training' },
+  { num: '05', title: 'Optimization', slug: '08_phase_5_optimization' },
+  { num: '06', title: 'Evaluation & Validation', slug: '09_phase_6_evaluation_validation' },
+  { num: '07', title: 'Deployment', slug: '10_phase_7_deployment' },
+];
 
 function loadPersisted(): PersistedState | null {
   if (typeof window === 'undefined') return null;
@@ -34,21 +68,54 @@ function savePersisted(state: PersistedState) {
   }
 }
 
-const PHASE_LIST: { num: string; title: string }[] = [
-  { num: '01', title: 'Understand the Problem' },
-  { num: '02', title: 'Data Exploration & Cleaning' },
-  { num: '03', title: 'Feature Selection & Preprocessing' },
-  { num: '04', title: 'Model Selection & Training' },
-  { num: '05', title: 'Optimization' },
-  { num: '06', title: 'Evaluation & Validation' },
-  { num: '07', title: 'Deployment' },
-];
+async function streamInto(
+  url: string,
+  body: unknown,
+  onChunk: (acc: string) => void,
+  signal?: AbortSignal,
+): Promise<{ ok: boolean; errorMessage?: string }> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!res.ok) {
+    let errorMessage = `Request failed (${res.status}).`;
+    try {
+      const data = await res.json();
+      if (data?.error) errorMessage = String(data.error);
+    } catch {
+      /* ignore */
+    }
+    return { ok: false, errorMessage };
+  }
+  if (!res.body) return { ok: false, errorMessage: 'No response body.' };
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let acc = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    acc += decoder.decode(value, { stream: true });
+    onChunk(acc);
+  }
+  return { ok: true };
+}
 
 export function PracticeWorkspace() {
+  const [type, setType] = useState<ScenarioType>('random');
+  const [complexity, setComplexity] = useState<Complexity>('medium');
   const [brief, setBrief] = useState('');
   const [solution, setSolution] = useState('');
-  const [revealing, setRevealing] = useState(false);
+  const [briefLoading, setBriefLoading] = useState(false);
+  const [solutionLoading, setSolutionLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSample, setIsSample] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+
+  const briefAbortRef = useRef<AbortController | null>(null);
+  const solutionAbortRef = useRef<AbortController | null>(null);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -56,6 +123,7 @@ export function PracticeWorkspace() {
     if (saved) {
       setBrief(saved.brief);
       setSolution(saved.solution);
+      setIsSample(saved.isSample);
     }
     setHydrated(true);
   }, []);
@@ -63,55 +131,166 @@ export function PracticeWorkspace() {
 
   useEffect(() => {
     if (!hydrated) return;
-    savePersisted({ brief, solution });
-  }, [hydrated, brief, solution]);
+    savePersisted({ brief, solution, isSample });
+  }, [hydrated, brief, solution, isSample]);
+
+  async function handleGenerateBrief() {
+    setError(null);
+    setBrief('');
+    setSolution('');
+    setIsSample(false);
+    setBriefLoading(true);
+    briefAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    briefAbortRef.current = ctrl;
+    const r = await streamInto(
+      '/api/practice/brief',
+      { type, complexity },
+      (acc) => setBrief(acc),
+      ctrl.signal,
+    );
+    setBriefLoading(false);
+    if (!r.ok && r.errorMessage) setError(r.errorMessage);
+  }
 
   function handleLoadSample() {
+    briefAbortRef.current?.abort();
+    solutionAbortRef.current?.abort();
+    setError(null);
+    setIsSample(true);
     setBrief(SAMPLE_BRIEF);
     setSolution('');
   }
 
   async function handleRevealSolution() {
     if (!brief) return;
+    setError(null);
     setSolution('');
-    setRevealing(true);
-    const chars = SAMPLE_SOLUTION;
-    const chunkSize = 80;
-    for (let i = 0; i < chars.length; i += chunkSize) {
-      setSolution(chars.slice(0, i + chunkSize));
-      await new Promise((r) => setTimeout(r, 12));
+    setSolutionLoading(true);
+
+    // Sample mode replays the canned solution character-by-chunk for offline use.
+    if (isSample) {
+      const chars = SAMPLE_SOLUTION;
+      const chunkSize = 80;
+      for (let i = 0; i < chars.length; i += chunkSize) {
+        setSolution(chars.slice(0, i + chunkSize));
+        await new Promise((r) => setTimeout(r, 12));
+      }
+      setSolutionLoading(false);
+      return;
     }
-    setRevealing(false);
+
+    solutionAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    solutionAbortRef.current = ctrl;
+    const r = await streamInto(
+      '/api/practice/solution',
+      { brief, userAttempt: '' },
+      (acc) => setSolution(acc),
+      ctrl.signal,
+    );
+    setSolutionLoading(false);
+    if (!r.ok && r.errorMessage) setError(r.errorMessage);
   }
 
   function handleReset() {
+    briefAbortRef.current?.abort();
+    solutionAbortRef.current?.abort();
     setBrief('');
     setSolution('');
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
+    setIsSample(false);
+    setError(null);
+    if (typeof window !== 'undefined') window.localStorage.removeItem(STORAGE_KEY);
   }
+
+  const briefAvailable = !!brief;
 
   return (
     <div className="space-y-10">
       {/* Controls */}
       <section className="border border-gray-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
         <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-3">
-          Step 01 — Load the brief
+          Step 01 — Load a brief
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-          Click below to load a sample classical ML business brief. Read it, work through
-          the seven phases on paper, then reveal the expert solution to compare.
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-5">
+          Generate a fresh AI brief, or load the hand-written sample. Read the brief,
+          work through the seven phases on paper, then reveal the expert solution.
         </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+              Type
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {TYPE_OPTIONS.map((opt) => {
+                const active = type === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setType(opt.value)}
+                    className={`px-3 py-1.5 text-xs uppercase tracking-widest border transition-colors ${
+                      active
+                        ? 'border-emerald-600 dark:border-emerald-400 text-emerald-700 dark:text-emerald-300'
+                        : 'border-gray-300 dark:border-gray-700 text-gray-500 hover:border-current'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+              Complexity
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {COMPLEXITY_OPTIONS.map((opt) => {
+                const active = complexity === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setComplexity(opt.value)}
+                    className={`px-3 py-1.5 text-xs uppercase tracking-widest border transition-colors ${
+                      active
+                        ? 'border-black dark:border-white text-black dark:text-white'
+                        : 'border-gray-300 dark:border-gray-700 text-gray-500 hover:border-current'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={handleLoadSample}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors"
+            disabled={briefLoading}
+            onClick={handleGenerateBrief}
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-emerald-600 hover:border-emerald-600 dark:hover:bg-emerald-500 dark:hover:border-emerald-500 transition-colors disabled:opacity-50"
           >
-            <FlaskConical className="w-3.5 h-3.5" />
-            {brief ? 'Reload Sample Brief' : 'Load Sample Brief'}
+            {briefLoading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5" />
+            )}
+            {brief && !isSample ? 'Generate New Brief' : 'Generate Brief'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLoadSample}
+            disabled={briefLoading}
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors disabled:opacity-50"
+          >
+            <FlaskConical className="w-3.5 h-3.5" /> Try Sample
           </button>
 
           {(brief || solution) && (
@@ -124,25 +303,43 @@ export function PracticeWorkspace() {
             </button>
           )}
         </div>
+
+        {isSample && (
+          <div className="mt-4 border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+            <strong className="font-mono tracking-widest uppercase">Sample mode</strong> · Static
+            demo brief + dataset. The Reveal button will play back the hand-written solution
+            instead of calling the API.
+          </div>
+        )}
       </section>
 
+      {error && (
+        <div className="border border-red-500/40 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+          {error}
+        </div>
+      )}
+
       {/* Brief panel */}
-      {brief && (
+      {(brief || briefLoading) && (
         <section className="border border-gray-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
           <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-3">
             Step 02 — The Brief
           </div>
-          <article className="prose prose-zinc dark:prose-invert max-w-none">
-            <MarkdownRenderer source={brief} />
-          </article>
+          {brief ? (
+            <article className="prose-mlfs max-w-none">
+              <MarkdownRenderer source={brief} />
+            </article>
+          ) : (
+            <p className="text-gray-500 italic">Generating…</p>
+          )}
         </section>
       )}
 
-      {/* Dataset — download + preview */}
-      {brief && <DatasetPreview label="Step 02b — The Dataset" />}
+      {/* Dataset — only when running in sample mode (the dataset matches that brief) */}
+      {briefAvailable && isSample && <DatasetPreview label="Step 02b — The Dataset" />}
 
       {/* Pen-and-paper prompt */}
-      {brief && (
+      {briefAvailable && (
         <section className="border border-gray-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
           <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-3">
             Step 03 — Your Approach
@@ -164,15 +361,7 @@ export function PracticeWorkspace() {
                   {p.num}
                 </span>
                 <Link
-                  href={`/learn/${{
-                    '01': '04_phase_1_understand_problem',
-                    '02': '05_phase_2_data_exploration_cleaning',
-                    '03': '06_phase_3_feature_selection_preprocessing',
-                    '04': '07_phase_4_model_selection_training',
-                    '05': '08_phase_5_optimization',
-                    '06': '09_phase_6_evaluation_validation',
-                    '07': '10_phase_7_deployment',
-                  }[p.num]}`}
+                  href={`/learn/${p.slug}`}
                   className="text-gray-700 dark:text-gray-200 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                 >
                   {p.title}
@@ -183,11 +372,11 @@ export function PracticeWorkspace() {
 
           <button
             type="button"
-            disabled={revealing}
+            disabled={solutionLoading}
             onClick={handleRevealSolution}
             className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-emerald-600 hover:border-emerald-600 dark:hover:bg-emerald-500 dark:hover:border-emerald-500 transition-colors disabled:opacity-50"
           >
-            {revealing ? (
+            {solutionLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Send className="w-3.5 h-3.5" />
@@ -198,18 +387,18 @@ export function PracticeWorkspace() {
       )}
 
       {/* Solution panel */}
-      {(solution || revealing) && (
+      {(solution || solutionLoading) && (
         <section className="border border-gray-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
           <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-3">
             Step 04 — Expert Solution
           </div>
-          <article className="prose prose-zinc dark:prose-invert max-w-none">
-            {solution ? (
+          {solution ? (
+            <article className="prose-mlfs max-w-none">
               <MarkdownRenderer source={solution} />
-            ) : (
-              <p className="text-gray-500 italic">Revealing solution…</p>
-            )}
-          </article>
+            </article>
+          ) : (
+            <p className="text-gray-500 italic">Generating expert solution…</p>
+          )}
         </section>
       )}
     </div>

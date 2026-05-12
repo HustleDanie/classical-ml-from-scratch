@@ -1,8 +1,8 @@
 # Classical ML From Scratch — Project Notes for Claude
 
-The site is a beginner-grade walkthrough of the classical-ML pipeline: a 7-phase Learn track, a sample-mode Practice page, a 155-entry expert-scenario catalog, and 3 production pipelines. Fully static, deployed to GitHub Pages.
+The site is a beginner-grade walkthrough of the classical-ML pipeline: a 7-phase Learn track, an AI-powered Practice page, an AI-powered Brief Reading page, a 155-entry expert-scenario catalog, and 3 production pipelines.
 
-The live site: **https://hustledanie.github.io/classical-ml-from-scratch/**
+Hosted on **Vercel** — switched from GitHub Pages so we can run Node.js API routes that hold the Anthropic API key and call Claude on behalf of the client.
 
 Note on the Python library: 12 classical-ML algorithms still live in `/algorithms/<name>/*.py` at the repo root with their plots. They are no longer surfaced on the site — the `/algorithms` route, the per-algorithm READMEs, and all top-level `HOW_IT_WORKS_*.md` / `MODEL_SELECTION_GUIDE_*.md` etc. guide files have been deleted to keep the surface lean. The Python code remains as a code library for anyone reading the repo directly.
 
@@ -42,11 +42,7 @@ npm run build          # static export (sets output: 'export' via next.config.ts
 npm run sync           # rerun the content sync explicitly
 ```
 
-For a production build with the correct project-site base path:
-
-```powershell
-$env:NEXT_PUBLIC_BASE_PATH = "/classical-ml-from-scratch"; npx next build
-```
+For local dev with AI endpoints working, copy `.env.example` → `.env.local` and fill in `ANTHROPIC_API_KEY`. Endpoints under `/api/*` will then succeed instead of 503.
 
 ---
 
@@ -102,14 +98,18 @@ Highlights from `DESIGN_SYSTEM.md`:
 
 ```
 /                              Home — two-card landing (Learn + Practice)
-/learn                         The pipeline guide hub — 7 phase cards + CTA
-/learn/04_phase_1_understand_problem   Phase 1
-/learn/05_phase_2_data_exploration_cleaning    ... through 10_phase_7_deployment
-/practice                      Offline sample-mode brief + reveal solution
+/learn                         Two cards: Pipeline Phases + Reading a Brief
+/learn/brief-reading           AI brief + 7-phase signal extraction (+ static default)
+/learn/[phase_slug]            Phase 1–7 deep-dives (04…10)
+/practice                      Generate brief → work on paper → reveal solution
 /scenarios                     155 walkthroughs catalog
 /scenarios/[type]/[slug]       Per-scenario
 /pipelines                     3 production pipelines
 /pipelines/[slug]              Per-pipeline
+
+/api/practice/brief            POST → streams a new brief
+/api/practice/solution         POST → streams the 17-step expert solution + critique
+/api/learn/brief-reading       POST → streams a brief + 7-phase signal extraction
 ```
 
 The top nav exposes only **Learn / Practice**. The `/algorithms` route was deleted entirely. Scenarios, Pipelines, and the GitHub link were intentionally removed from the nav (the scenarios + pipelines routes still work via direct URL and are linked from the Footer).
@@ -118,14 +118,19 @@ The top nav exposes only **Learn / Practice**. The `/algorithms` route was delet
 
 ## Deployment
 
-GitHub Actions (`.github/workflows/deploy.yml`) deploys on every push to `master`, `main`, or `expert-scenarios-library`. It:
+Vercel. The repo is connected to a Vercel project; every push to any tracked branch triggers an auto-deploy.
 
-1. Reads `actions/configure-pages@v5` with `enablement: true` to bootstrap Pages.
-2. Runs `npm ci` + `npm run build` with `NEXT_PUBLIC_BASE_PATH` injected from `configure-pages` output (= `/classical-ml-from-scratch`).
-3. Adds `.nojekyll` to `out/`.
-4. Uploads `frontend/out` as the Pages artifact, then `actions/deploy-pages@v4`.
+**One-time setup:**
+1. Sign in at https://vercel.com with the same GitHub account.
+2. "Add new… → Project" and import `classical-ml-from-scratch`.
+3. **Root directory**: `frontend` (the Next app lives in a sub-folder).
+4. Framework preset: Next.js (auto-detected).
+5. Environment variables → add `ANTHROPIC_API_KEY` = your key from console.anthropic.com.
+6. Deploy.
 
-The `github-pages` environment had its `deployment_branch_policy` cleared so any branch can deploy.
+Vercel runs `npm run build` which fires `prebuild` (the content sync) automatically. No `vercel.json` needed.
+
+**Local dev mirrors prod:** `npm run dev` reads `.env.local` for `ANTHROPIC_API_KEY`, so the `/api/*` endpoints work end-to-end without deploying.
 
 ---
 

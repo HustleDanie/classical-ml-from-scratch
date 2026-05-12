@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DatasetPreview } from '@/components/DatasetPreview';
+import { BriefReadingClient } from '@/components/BriefReadingClient';
 import { SAMPLE_BRIEF } from '@/lib/practice-sample';
 
 export const metadata = {
@@ -222,6 +223,16 @@ export default function BriefReadingPage() {
           dissected. For every one of the seven phases, here are the exact phrases an
           expert pulls from the brief — and the decision each phrase forces.
         </p>
+      </section>
+
+      {/* Interactive generator — AI brief + dissection on demand */}
+      <BriefReadingClient />
+
+      {/* Static default — the hand-crafted worked example */}
+      <section className="max-w-4xl mx-auto px-4 md:px-6 pb-2">
+        <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-1">
+          Default worked example
+        </div>
       </section>
 
       {/* The brief */}
