@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { DatasetPreview } from '@/components/DatasetPreview';
 import { SAMPLE_BRIEF } from '@/lib/practice-sample';
 
 export const metadata = {
@@ -57,23 +58,23 @@ const PHASE_BLOCKS: {
         quote:
           '60+ feature columns including cuisine type, seating capacity, ownership type, complaint history (free-text complaint logs we\'d need to handle), days since last inspection, prior violation history, neighborhood demographics, weather at inspection time',
         implication:
-          'Mixed types: numeric, categorical (low + high cardinality), and one free-text field. Free text → TF-IDF + sentiment in Phase 2. Demographics → fairness consideration in Phase 6.',
+          'Mixed types: numeric (`seating_capacity`, `days_since_last_inspection`, `prior_critical_count`, `neighborhood_median_income`), low-cardinality categorical (`cuisine_type` 9 levels, `ownership_type` 2, `county` 10), high-cardinality (`inspector_id` 88 levels), and one free-text field (`complaint_text`). The free-text column needs TF-IDF + a sentiment / keyword flag in Phase 2; the demographics column gets a fairness audit in Phase 6.',
       },
       {
         quote:
           'a sparse field for "renovations or ownership change in last 12 months" that\'s only filled in for ~20% of records (and we suspect missingness is informative — owners who don\'t disclose are more likely to fail)',
         implication:
-          'Classic informative-missingness. Test: `df.groupby(col.isna())[target].mean()`. If means differ → add a `renovation_missing` flag, then impute the value. Don\'t just fillna.',
+          'Open the CSV: `renovation_disclosed` is blank in **82%** of rows — matches the brief. Run `df.groupby(df["renovation_disclosed"] == "")["result"].apply(lambda s: (s == "critical").mean())` — the critical rate among non-disclosers is meaningfully higher. Keep a `renovation_missing` flag, *then* impute.',
       },
       {
         quote: 'the inspector ID',
         implication:
-          'Audit immediately. Inspector-level critical rates vary widely → `inspector_id` is a *confounder* for the outcome, not a property of the restaurant. Drop it before feature engineering.',
+          '`inspector_id` has 88 unique values. Group `df.groupby("inspector_id")["result"].apply(lambda s: (s == "critical").mean())` — inspector-level critical rates vary 3× to 14× across inspectors. That spread is judgment, not restaurant signal. Drop the column before feature engineering.',
       },
       {
         quote: 'weather at inspection time',
         implication:
-          'Engineer cyclical features for the date (`hour_sin`, `month_sin`, `is_summer`) — outbreak-prone foods (dairy, seafood) spike in heat.',
+          'The supplied sample has no weather column — only `inspection_date`. Engineer cyclical features from the date (`month_sin`, `month_cos`, `is_summer`); outbreak-prone foods spike in heat and that shows up in the seasonality even without weather data.',
       },
     ],
   },
@@ -86,17 +87,17 @@ const PHASE_BLOCKS: {
       {
         quote: '6 years of historical data: ~210K inspection records',
         implication:
-          'Time-based split, not random. Train on early years, validate on the most recent year. Random splits would leak future inspections into training via rolling features.',
+          'Time-based split, not random. Sort by `inspection_date`, train on early years, validate on the most recent year. Random splits would leak future inspections into training via the rolling-window features.',
       },
       {
         quote: 'cuisine type, ownership type, … neighborhood demographics',
         implication:
-          'Cuisine and ownership: OneHotEncoder. Neighborhood (high-cardinality): TargetEncoder with Bayesian smoothing — NEVER one-hot 1000+ neighborhoods.',
+          'In the sample CSV: `cuisine_type` (9 levels) and `ownership_type` (2 levels) → `OneHotEncoder`. `county` (10 in this sample, ~hundreds in real data) → `TargetEncoder` with Bayesian smoothing. `inspector_id` → drop, do NOT target-encode (confounder).',
       },
       {
         quote: 'inspector judgment … feedback loop risk',
         implication:
-          'Reserve a small random-inspection holdout each quarter; otherwise the training distribution narrows to "what inspectors chose to look at" and the model loses ground over time.',
+          'Reserve a small random-inspection holdout each quarter; otherwise the training distribution narrows to "what inspectors chose to look at" and the model degrades silently.',
       },
     ],
   },
@@ -162,7 +163,7 @@ const PHASE_BLOCKS: {
         quote:
           'pressure from the small-business association to make sure the score isn\'t systematically harder on independent restaurants vs. chains',
         implication:
-          'Fairness audit: per-group recall@k for chain vs independent. Alert if the gap > 5 percentage points. Don\'t use post-hoc threshold adjustment unless you can justify it legally.',
+          'Use the `ownership_type` column directly for the audit: `df.groupby("ownership_type")` and report recall@k, precision@k, and Brier per group. Alert if the recall gap > 5 pp. Don\'t post-hoc-adjust thresholds per group unless you can justify it legally.',
       },
     ],
   },
@@ -224,7 +225,7 @@ export default function BriefReadingPage() {
       </section>
 
       {/* The brief */}
-      <section className="max-w-4xl mx-auto px-4 md:px-6 pb-12">
+      <section className="max-w-4xl mx-auto px-4 md:px-6 pb-10">
         <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-4">
           The Brief
         </div>
@@ -232,6 +233,16 @@ export default function BriefReadingPage() {
           <div className="prose-mlfs max-w-none">
             <MarkdownRenderer source={SAMPLE_BRIEF} />
           </div>
+        </div>
+      </section>
+
+      {/* The dataset */}
+      <section className="max-w-4xl mx-auto px-4 md:px-6 pb-12">
+        <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-4">
+          The Dataset
+        </div>
+        <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 md:p-8">
+          <DatasetPreview framed={false} />
         </div>
       </section>
 
