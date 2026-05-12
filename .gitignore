@@ -18,3 +18,4 @@ Thumbs.db
 
 # Plots are generated — keep them tracked for GitHub showcase
 # plots/
+.next/

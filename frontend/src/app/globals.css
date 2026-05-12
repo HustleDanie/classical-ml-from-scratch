@@ -1,0 +1,279 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+/* Enable dark mode with class strategy */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Wire Tailwind font utilities (font-sans, font-mono) to IBM Plex */
+@theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+}
+
+/* CSS Variables for theming */
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --primary: #171717;
+  --primary-foreground: #fafafa;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #0a0a0a;
+}
+
+:root.dark, .dark {
+  /* ----------------------------------------------------------------------
+   * Dark mode = neutral charcoal (Linear / Notion / Vercel style).
+   *
+   * Pure neutrals — no blue cast, no green cast, no warm cast. The
+   * emerald accent (used on hovers, CTAs, focus rings) provides life
+   * and ties the dark mode to the same accent used in light mode.
+   *
+   * We override Tailwind's --color-black / --color-gray-* variables so
+   * every existing `dark:bg-black`, `dark:bg-gray-900`, `dark:border-
+   * gray-800`, etc. utility resolves to the charcoal palette
+   * automatically — no per-component edits.
+   * -------------------------------------------------------------------- */
+  --background: #18181b;            /* zinc-900 — body */
+  --foreground: #e4e4e7;            /* zinc-200 — body text */
+  --card: #27272a;                  /* zinc-800 — one step elevated */
+  --card-foreground: #e4e4e7;
+  --primary: #e4e4e7;
+  --primary-foreground: #18181b;
+  --secondary: #3f3f46;             /* zinc-700 */
+  --secondary-foreground: #e4e4e7;
+  --muted: #3f3f46;
+  --muted-foreground: #a1a1aa;      /* zinc-400 */
+  --accent: #3f3f46;
+  --accent-foreground: #e4e4e7;
+  --border: #3f3f46;
+  --input: #3f3f46;
+  --ring: #34d399;                  /* emerald-400 — focus accent */
+
+  /* Tailwind utility re-mapping for dark mode. Light-mode usage of these
+   * tokens is unaffected because the overrides live inside the .dark
+   * scope. The palette below is Tailwind's zinc scale verbatim. */
+  --color-black:    #18181b;        /* dark:bg-black, dark:border-black, … */
+  --color-gray-900: #27272a;        /* dark:bg-gray-900 (cards)            */
+  --color-gray-800: #3f3f46;        /* dark:border-gray-800                */
+  --color-gray-700: #52525b;        /* dark:border-gray-700 / hover        */
+  --color-gray-400: #a1a1aa;        /* dark:text-gray-400 (muted)          */
+  --color-gray-300: #d4d4d8;        /* dark:text-gray-300 (body)           */
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Ligatures + slightly tighter tracking on body for that IBM Plex feel */
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  text-rendering: optimizeLegibility;
+}
+
+/* Display / heading utility — used for hero titles and section headings.
+   Class name is kept as `font-orbitron` for backward compatibility with
+   ~30 component references; behind the scenes it is now Plex Sans Bold
+   with display tracking. */
+.font-orbitron {
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Mono utility — used for the small UPPERCASE LABELS that pepper the site
+   (STEP 01, 0x identifiers, code snippets in markdown). Class name kept
+   as `font-space-mono` for backward compat; rendered as Plex Mono. */
+.font-space-mono {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+/* Focus rings (accessibility) — emerald accent across the whole site.
+   Applied via :focus-visible so mouse users don't see a ring on click. */
+*:focus-visible {
+  outline: 2px solid #10b981;       /* emerald-500 */
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+.dark *:focus-visible {
+  outline-color: #34d399;           /* emerald-400 — bumped for charcoal contrast */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Selection */
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Card Hover Effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 20px 40px rgba(255, 255, 255, 0.05);
+}
+
+/* Markdown content styling — editorial reading style.
+   Body paragraphs use Plex Serif for the long-form reading feel
+   (book-chapter cadence). Headings stay in Plex Sans for crispness. */
+.prose-mlfs {
+  color: var(--foreground);
+  font-family: var(--font-plex-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.prose-mlfs h1,
+.prose-mlfs h2,
+.prose-mlfs h3,
+.prose-mlfs h4 {
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.prose-mlfs h1 { font-size: 1.875rem; line-height: 1.2; }
+.prose-mlfs h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+.prose-mlfs h3 { font-size: 1.2rem; }
+.prose-mlfs h4 { font-size: 1.05rem; }
+
+.prose-mlfs p {
+  margin-bottom: 1rem;
+}
+
+
+.prose-mlfs a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.prose-mlfs ul,
+.prose-mlfs ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose-mlfs ul { list-style: disc; }
+.prose-mlfs ol { list-style: decimal; }
+.prose-mlfs li { margin-bottom: 0.4rem; }
+
+.prose-mlfs blockquote {
+  border-left: 2px solid #10b981;       /* emerald-500 accent */
+  padding-left: 1.25rem;
+  margin: 1.25rem 0;
+  color: var(--muted-foreground);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.65;
+}
+.dark .prose-mlfs blockquote {
+  border-left-color: #34d399;
+}
+
+.prose-mlfs code:not(pre code) {
+  background: var(--muted);
+  padding: 0.15rem 0.4rem;
+  font-size: 0.9em;
+  border: 1px solid var(--border);
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+.prose-mlfs pre,
+.prose-mlfs pre code {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+.prose-mlfs pre {
+  margin: 1rem 0;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.prose-mlfs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+
+.prose-mlfs th,
+.prose-mlfs td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose-mlfs th {
+  background: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.prose-mlfs img {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+.prose-mlfs hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* KaTeX scroll on mobile */
+.prose-mlfs .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+}
