@@ -12,8 +12,8 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { ReadingProgress } from '@/components/ReadingProgress';
 
 const TYPE_LABEL: Record<ScenarioType, { label: string; accent: string }> = {
-  classification: { label: 'Classification', accent: 'text-emerald-500' },
-  regression: { label: 'Regression', accent: 'text-blue-500' },
+  classification: { label: 'Classification', accent: 'text-emerald-700 dark:text-emerald-300' },
+  regression: { label: 'Regression', accent: 'text-amber-700 dark:text-amber-300' },
 };
 
 export function generateStaticParams() {

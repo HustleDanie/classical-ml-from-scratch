@@ -15,26 +15,22 @@ export function AlgorithmCard({ algorithm, index }: AlgorithmCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.04 }}
-      className="group relative"
+      transition={{ duration: 0.35, delay: Math.min(index, 8) * 0.04 }}
+      className="group"
     >
-      <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-transparent group-hover:border-black dark:group-hover:border-white transition-colors duration-300" />
-      <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-transparent group-hover:border-black dark:group-hover:border-white transition-colors duration-300" />
-      <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-transparent group-hover:border-black dark:group-hover:border-white transition-colors duration-300" />
-      <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-transparent group-hover:border-black dark:group-hover:border-white transition-colors duration-300" />
-
       <Link
         href={`/algorithms/${algorithm.slug}`}
-        className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden card-hover"
+        className="flex h-full flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden hover:border-emerald-600 dark:hover:border-emerald-400 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-emerald-950/40 transition-all duration-200"
       >
+        {/* Hero plot preview */}
         <div className="relative h-44 bg-gray-50 dark:bg-gray-950 overflow-hidden">
-          <div className="absolute top-3 left-3 bg-black dark:bg-white text-white dark:text-black px-2 py-1 font-mono text-xs tracking-wider z-10">
+          <div className="absolute top-3 left-3 z-10 bg-black dark:bg-white text-white dark:text-black px-2 py-1 font-mono text-xs tracking-wider">
             #{algorithm.num}
           </div>
           <div
-            className={`absolute top-3 right-3 border ${accent} px-2 py-1 font-mono text-[10px] tracking-wider bg-white/80 dark:bg-black/80 backdrop-blur-sm z-10`}
+            className={`absolute top-3 right-3 z-10 border ${accent} px-2 py-1 font-mono text-[10px] tracking-wider bg-white/80 dark:bg-black/80 backdrop-blur-sm`}
           >
             {algorithm.category.toUpperCase()}
           </div>
@@ -42,29 +38,23 @@ export function AlgorithmCard({ algorithm, index }: AlgorithmCardProps) {
           <img
             src={`/plots/${algorithm.folder}/${algorithm.heroPlot}`}
             alt={`${algorithm.name} — preview plot`}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+            className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-300"
             loading="lazy"
           />
-          <div className="absolute inset-0 glitch-overlay pointer-events-none" />
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div
-              className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-transparent"
-              style={{ backgroundSize: '100% 4px' }}
-            />
-          </div>
         </div>
 
-        <div className="p-4 space-y-3">
+        {/* Card body */}
+        <div className="flex flex-1 flex-col p-5 gap-3">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-orbitron font-bold text-sm tracking-wide leading-snug">
+            <h3 className="font-orbitron font-bold text-sm tracking-wide leading-snug group-hover:text-emerald-800 dark:group-hover:text-emerald-200 transition-colors">
               {algorithm.name.toUpperCase()}
             </h3>
-            <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors flex-shrink-0 mt-0.5" />
+            <ArrowUpRight className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all flex-shrink-0 mt-0.5" />
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-xs line-clamp-2 leading-relaxed">
+          <p className="text-gray-500 dark:text-gray-400 text-xs line-clamp-2 leading-relaxed flex-1">
             {algorithm.tagline}
           </p>
-          <div className="pt-2 text-[10px] text-gray-400 font-mono tracking-widest uppercase">
+          <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono tracking-widest uppercase pt-1">
             {algorithm.bestFor}
           </div>
         </div>
