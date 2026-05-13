@@ -9,28 +9,33 @@ import {
 
 interface Props {
   dataset: GeneratedDataset;
-  /** Eyebrow label (e.g. "Step 02b — The Dataset" or "The Dataset"). */
   label?: string;
-  /** If false, render without the bordered card wrapper (for use inside an
-   *  existing container). */
   framed?: boolean;
-  /** How many rows to show in the preview. The full set is in the CSV. */
   previewRows?: number;
 }
 
+/** Excel column letters: A, B, …, Z, AA, AB, …, AZ, BA, … */
+function colLetter(i: number): string {
+  let s = '';
+  let n = i;
+  while (n >= 0) {
+    s = String.fromCharCode(65 + (n % 26)) + s;
+    n = Math.floor(n / 26) - 1;
+  }
+  return s;
+}
+
 /**
- * Renders an AI-generated dataset: short description, CSV download button,
- * 6-row preview table. The CSV is built client-side from the rows in
- * memory and served via a blob URL.
+ * AI-generated dataset rendered as an Excel-style sheet — column letters,
+ * row numbers, gridlines, zebra striping, sheet tab footer. Builds the
+ * CSV from the in-memory rows and exposes a download button.
  */
 export function GeneratedDatasetPreview({
   dataset,
   label = 'The Dataset',
   framed = true,
-  previewRows = 6,
+  previewRows = 10,
 }: Props) {
-  // Build a fresh Blob URL whenever the dataset changes; revoke on unmount /
-  // dataset swap to avoid leaks.
   /* eslint-disable react-hooks/set-state-in-effect */
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   useEffect(() => {
@@ -45,13 +50,14 @@ export function GeneratedDatasetPreview({
     [dataset.rows, previewRows],
   );
 
-  // Heuristic: "target" rows highlighted if a column called `result`,
-  // `target`, `is_critical`, `label`, etc. holds a positive-class value.
   const targetCol = useMemo(() => {
     const candidates = ['result', 'target', 'is_critical', 'label', 'churn', 'fraud'];
     return dataset.columns.find((c) => candidates.includes(c.name.toLowerCase()))?.name;
   }, [dataset.columns]);
   const positiveValues = new Set(['critical', '1', 'true', 'yes', 'fraud', 'churn', 'positive']);
+
+  const cellBase =
+    'border-r border-b border-gray-300 dark:border-gray-700 px-3 py-1.5 whitespace-nowrap';
 
   const body = (
     <>
@@ -78,61 +84,99 @@ export function GeneratedDatasetPreview({
         </span>
       </div>
 
-      <div className="overflow-x-auto border border-gray-200 dark:border-gray-800">
-        <table className="min-w-full text-[11px] font-mono">
-          <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
-              {dataset.columns.map((col) => (
-                <th
-                  key={col.name}
-                  className="px-3 py-2 text-left tracking-widest uppercase text-[9px] text-gray-500 dark:text-gray-400 whitespace-nowrap"
-                  title={col.description}
-                >
-                  {col.name}
+      {/* Excel-style sheet */}
+      <div className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="text-[11px] border-collapse">
+            <thead>
+              {/* Column-letter band */}
+              <tr className="bg-gray-200 dark:bg-gray-800">
+                <th className="sticky left-0 z-10 w-10 border-r border-b border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-800 px-2 py-1 text-center text-[10px] font-normal text-gray-500">
+                  {/* corner */}
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {previewSlice.map((row, i) => {
-              const isPositive =
-                targetCol &&
-                positiveValues.has(String(row[targetCol] ?? '').toLowerCase());
-              return (
-                <tr
-                  key={i}
-                  className={`${
-                    i < previewSlice.length - 1
-                      ? 'border-b border-gray-100 dark:border-gray-800/60'
-                      : ''
-                  } ${
-                    isPositive ? 'bg-amber-50/40 dark:bg-amber-950/10' : ''
-                  }`}
+                {dataset.columns.map((_, i) => (
+                  <th
+                    key={i}
+                    className="border-r border-b border-gray-300 dark:border-gray-700 px-3 py-1 text-center text-[10px] font-normal text-gray-500 dark:text-gray-400"
+                  >
+                    {colLetter(i)}
+                  </th>
+                ))}
+              </tr>
+              {/* Field-name band */}
+              <tr className="bg-gray-100 dark:bg-gray-900">
+                <th
+                  className={`${cellBase} sticky left-0 z-10 bg-gray-200 dark:bg-gray-800 text-center text-[10px] font-mono text-gray-500 font-normal`}
                 >
-                  {dataset.columns.map((col) => {
-                    const v = row[col.name] ?? '';
-                    return (
-                      <td
-                        key={col.name}
-                        className="px-3 py-2 text-gray-700 dark:text-gray-300 whitespace-nowrap"
-                      >
-                        {v === '' ? (
-                          <span className="text-gray-300 dark:text-gray-700 italic">∅</span>
-                        ) : (
-                          v
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  #
+                </th>
+                {dataset.columns.map((col) => (
+                  <th
+                    key={col.name}
+                    title={col.description}
+                    className={`${cellBase} text-left text-[11px] font-semibold text-gray-700 dark:text-gray-200`}
+                  >
+                    {col.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="font-mono">
+              {previewSlice.map((row, i) => {
+                const isPositive =
+                  targetCol &&
+                  positiveValues.has(String(row[targetCol] ?? '').toLowerCase());
+                const zebra = i % 2 === 0
+                  ? 'bg-white dark:bg-gray-950'
+                  : 'bg-gray-50 dark:bg-gray-900/50';
+                return (
+                  <tr
+                    key={i}
+                    className={`${zebra} ${
+                      isPositive ? '!bg-amber-50 dark:!bg-amber-950/20' : ''
+                    } hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20`}
+                  >
+                    <td
+                      className={`${cellBase} sticky left-0 z-10 bg-gray-100 dark:bg-gray-800 text-center text-[10px] text-gray-500 dark:text-gray-400 font-normal`}
+                    >
+                      {i + 1}
+                    </td>
+                    {dataset.columns.map((col) => {
+                      const v = row[col.name] ?? '';
+                      return (
+                        <td
+                          key={col.name}
+                          className={`${cellBase} text-gray-800 dark:text-gray-200`}
+                        >
+                          {v === '' ? (
+                            <span className="text-gray-300 dark:text-gray-700 italic">∅</span>
+                          ) : (
+                            v
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sheet-tab footer */}
+        <div className="border-t border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-800 px-2 pt-1 flex items-end gap-1">
+          <div className="px-3 py-1 -mb-px bg-white dark:bg-gray-950 border-l border-r border-t border-gray-300 dark:border-gray-700 text-[10px] font-mono text-gray-700 dark:text-gray-200">
+            Sheet1
+          </div>
+          <span className="ml-auto pb-1 text-[10px] font-mono text-gray-500 dark:text-gray-400">
+            Showing {previewSlice.length} of {dataset.rows.length} rows
+            {targetCol && ` · target column: ${targetCol}`}
+          </span>
+        </div>
       </div>
+
       <p className="mt-3 text-[10px] text-gray-500 dark:text-gray-400 font-mono">
-        Showing {previewSlice.length} of {dataset.rows.length} rows.{' '}
-        {targetCol && `Positive-class rows highlighted (column: ${targetCol}).`}
+        Download the CSV to load the full {dataset.rows.length}-row dataset into pandas.
       </p>
     </>
   );
