@@ -17,7 +17,18 @@ export function MarkdownRenderer({ source, imageBase }: MarkdownRendererProps) {
     <div className="prose-mlfs">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[
+          [
+            rehypeKatex,
+            {
+              // Quiet KaTeX's noisy LaTeX-strict warnings (e.g., `%` in
+              // math contexts) and don't fail the render if a single
+              // expression is malformed — show the source instead.
+              strict: 'ignore',
+              throwOnError: false,
+            },
+          ],
+        ]}
         components={{
           code({ className, children, ...rest }) {
             const inline = !(className && /language-/.test(className));
