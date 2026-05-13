@@ -126,8 +126,9 @@ export function BriefReadingClient() {
         </div>
         <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-5">
-            Spin up a fresh AI-generated brief, matching dataset, and 7-phase
-            dissection. The default example below stays in place until you do.
+            Generate a fresh brief, its matching dataset, and a 7-phase dissection
+            that pulls verbatim phrases from the brief and maps each to a concrete
+            decision.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -203,7 +204,7 @@ export function BriefReadingClient() {
                 onClick={handleReset}
                 className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-current transition-colors"
               >
-                <RefreshCcw className="w-3.5 h-3.5" /> Show default example
+                <RefreshCcw className="w-3.5 h-3.5" /> Reset
               </button>
             )}
           </div>
