@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Database, Download } from 'lucide-react';
 import {
   type GeneratedDataset,
@@ -26,14 +26,8 @@ export function GeneratedDatasetPreview({
   framed = true,
   previewRows = 6,
 }: Props) {
-  /* eslint-disable react-hooks/set-state-in-effect */
-  const [blobUrl, setBlobUrl] = useState<string | null>(null);
-  useEffect(() => {
-    const url = datasetToBlobUrl(dataset);
-    setBlobUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [dataset]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+  const blobUrl = useMemo(() => datasetToBlobUrl(dataset), [dataset]);
+  useEffect(() => () => URL.revokeObjectURL(blobUrl), [blobUrl]);
 
   const previewSlice = useMemo(
     () => dataset.rows.slice(0, previewRows),
