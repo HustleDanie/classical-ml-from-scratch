@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
 import {
   BRIEF_SYSTEM_PROMPT,
+  BRIEF_RESPONSE_SCHEMA,
   buildBriefUserMessage,
   type Complexity,
   type ScenarioType,
@@ -9,6 +10,7 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300; // Vercel: allow up to 5 min for adaptive thinking
 
 interface Body {
   type?: ScenarioType;
@@ -44,47 +46,42 @@ export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey });
   const userMessage = buildBriefUserMessage(type, complexity);
 
-  const stream = client.messages.stream({
-    model: 'claude-opus-4-7',
-    max_tokens: 2048,
-    thinking: { type: 'adaptive' },
-    output_config: { effort: 'medium' },
-    system: [
-      {
-        type: 'text',
-        text: BRIEF_SYSTEM_PROMPT,
-        cache_control: { type: 'ephemeral' },
+  try {
+    const response = await client.messages.create({
+      model: 'claude-opus-4-7',
+      max_tokens: 8000,
+      thinking: { type: 'adaptive' },
+      output_config: {
+        effort: 'medium',
+        format: {
+          type: 'json_schema',
+          schema: BRIEF_RESPONSE_SCHEMA,
+        },
       },
-    ],
-    messages: [{ role: 'user', content: userMessage }],
-  });
+      system: [
+        {
+          type: 'text',
+          text: BRIEF_SYSTEM_PROMPT,
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
+      messages: [{ role: 'user', content: userMessage }],
+    });
 
-  const encoder = new TextEncoder();
-  const responseStream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (
-            event.type === 'content_block_delta' &&
-            event.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
-        }
-        controller.close();
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        controller.enqueue(encoder.encode(`\n\n[ERROR] ${message}`));
-        controller.close();
-      }
-    },
-  });
+    // Find the first text block — when output_config.format is json_schema,
+    // the text block contains the validated JSON as a string.
+    const textBlock = response.content.find((b) => b.type === 'text');
+    if (!textBlock || textBlock.type !== 'text') {
+      return Response.json(
+        { error: 'Model returned no text content.' },
+        { status: 502 },
+      );
+    }
 
-  return new Response(responseStream, {
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-store',
-      'X-Accel-Buffering': 'no',
-    },
-  });
+    const parsed = JSON.parse(textBlock.text);
+    return Response.json(parsed);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return Response.json({ error: message }, { status: 500 });
+  }
 }

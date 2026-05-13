@@ -12,7 +12,9 @@ import {
 import Link from 'next/link';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { DatasetPreview } from './DatasetPreview';
+import { GeneratedDatasetPreview } from './GeneratedDatasetPreview';
 import { SAMPLE_BRIEF, SAMPLE_SOLUTION } from '@/lib/practice-sample';
+import type { GeneratedDataset } from '@/lib/dataset';
 
 type ScenarioType = 'classification' | 'regression' | 'random';
 type Complexity = 'easy' | 'medium' | 'hard' | 'random';
@@ -21,9 +23,10 @@ interface PersistedState {
   brief: string;
   solution: string;
   isSample: boolean;
+  dataset: GeneratedDataset | null;
 }
 
-const STORAGE_KEY = 'practice.workspace.v4';
+const STORAGE_KEY = 'practice.workspace.v5';
 
 const TYPE_OPTIONS: { value: ScenarioType; label: string }[] = [
   { value: 'classification', label: 'Classification' },
@@ -103,10 +106,41 @@ async function streamInto(
   return { ok: true };
 }
 
+async function postJson<T>(
+  url: string,
+  body: unknown,
+  signal?: AbortSignal,
+): Promise<{ ok: boolean; data?: T; errorMessage?: string }> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return {
+        ok: false,
+        errorMessage: data?.error
+          ? String(data.error)
+          : `Request failed (${res.status}).`,
+      };
+    }
+    return { ok: true, data: data as T };
+  } catch (err) {
+    return {
+      ok: false,
+      errorMessage: err instanceof Error ? err.message : 'Network error.',
+    };
+  }
+}
+
 export function PracticeWorkspace() {
   const [type, setType] = useState<ScenarioType>('random');
   const [complexity, setComplexity] = useState<Complexity>('medium');
   const [brief, setBrief] = useState('');
+  const [dataset, setDataset] = useState<GeneratedDataset | null>(null);
   const [solution, setSolution] = useState('');
   const [briefLoading, setBriefLoading] = useState(false);
   const [solutionLoading, setSolutionLoading] = useState(false);
@@ -124,6 +158,7 @@ export function PracticeWorkspace() {
       setBrief(saved.brief);
       setSolution(saved.solution);
       setIsSample(saved.isSample);
+      setDataset(saved.dataset ?? null);
     }
     setHydrated(true);
   }, []);
@@ -131,26 +166,31 @@ export function PracticeWorkspace() {
 
   useEffect(() => {
     if (!hydrated) return;
-    savePersisted({ brief, solution, isSample });
-  }, [hydrated, brief, solution, isSample]);
+    savePersisted({ brief, solution, isSample, dataset });
+  }, [hydrated, brief, solution, isSample, dataset]);
 
   async function handleGenerateBrief() {
     setError(null);
     setBrief('');
+    setDataset(null);
     setSolution('');
     setIsSample(false);
     setBriefLoading(true);
     briefAbortRef.current?.abort();
     const ctrl = new AbortController();
     briefAbortRef.current = ctrl;
-    const r = await streamInto(
+    const r = await postJson<{ brief: string; dataset: GeneratedDataset }>(
       '/api/practice/brief',
       { type, complexity },
-      (acc) => setBrief(acc),
       ctrl.signal,
     );
     setBriefLoading(false);
-    if (!r.ok && r.errorMessage) setError(r.errorMessage);
+    if (r.ok && r.data) {
+      setBrief(r.data.brief);
+      setDataset(r.data.dataset);
+    } else if (r.errorMessage) {
+      setError(r.errorMessage);
+    }
   }
 
   function handleLoadSample() {
@@ -159,6 +199,7 @@ export function PracticeWorkspace() {
     setError(null);
     setIsSample(true);
     setBrief(SAMPLE_BRIEF);
+    setDataset(null);
     setSolution('');
   }
 
@@ -197,6 +238,7 @@ export function PracticeWorkspace() {
     briefAbortRef.current?.abort();
     solutionAbortRef.current?.abort();
     setBrief('');
+    setDataset(null);
     setSolution('');
     setIsSample(false);
     setError(null);
@@ -330,13 +372,19 @@ export function PracticeWorkspace() {
               <MarkdownRenderer source={brief} />
             </article>
           ) : (
-            <p className="text-gray-500 italic">Generating…</p>
+            <p className="text-gray-500 italic">
+              Generating brief and matching dataset… this can take 30–90 seconds.
+            </p>
           )}
         </section>
       )}
 
-      {/* Dataset — only when running in sample mode (the dataset matches that brief) */}
+      {/* Dataset — sample mode shows the hand-written CSV;
+          API mode shows the AI-generated dataset that matches the brief. */}
       {briefAvailable && isSample && <DatasetPreview label="Step 02b — The Dataset" />}
+      {briefAvailable && !isSample && dataset && (
+        <GeneratedDatasetPreview dataset={dataset} label="Step 02b — The Dataset" />
+      )}
 
       {/* Pen-and-paper prompt */}
       {briefAvailable && (

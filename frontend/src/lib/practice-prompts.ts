@@ -1,15 +1,20 @@
 /**
  * System prompts for the three Claude API endpoints.
  *
- *   /api/practice/brief         — generate a fresh ML business brief
- *   /api/practice/solution      — generate the 17-step expert solution
- *                                  (+ critique if the user wrote an attempt)
- *   /api/learn/brief-reading    — generate a brief + a 7-phase signal
- *                                  extraction in one document
+ *   /api/practice/brief         — returns JSON: { brief, dataset }
+ *   /api/practice/solution      — streams text: 17-step walkthrough + critique
+ *   /api/learn/brief-reading    — returns JSON: { brief, dataset, phases }
  *
- * Each system prompt is stable across calls so the Anthropic prompt cache
- * (5-min TTL) cuts cost ~90% on the prefix for repeat traffic.
+ * Brief + dataset are co-generated so the dataset *matches* the brief. The
+ * structured-output schema (declared via `output_config.format` on the API
+ * route side) guarantees the response shape; this prompt teaches Claude
+ * the content discipline.
+ *
+ * System prompts are stable across calls so the Anthropic prompt cache
+ * (5-min TTL) cuts cost ~90% on the cached prefix for repeat traffic.
  */
+
+import { DATASET_JSON_SCHEMA } from './dataset';
 
 export type ScenarioType = 'classification' | 'regression' | 'random';
 export type Complexity = 'easy' | 'medium' | 'hard' | 'random';
@@ -28,18 +33,37 @@ const TYPE_DIRECTIVES: Record<Exclude<ScenarioType, 'random'>, string> = {
 };
 
 /* -----------------------------------------------------------------------
- * BRIEF generation
+ * Shared dataset-generation discipline (referenced by both endpoints below).
  * --------------------------------------------------------------------- */
 
-export const BRIEF_SYSTEM_PROMPT = `You generate realistic machine-learning business problem briefs for a learner.
+const DATASET_RULES = `Dataset rules:
+- 15–30 rows, 5–12 columns. Compact enough for a static preview, real enough to run pandas against.
+- Include the target column the brief asks to predict; the column's distribution should match the brief's stated rate (e.g. ~7% positive class, or skewed regression target).
+- Reflect the features the brief mentions. If the brief says "complaint logs", add a free-text column. If it mentions "informative missingness on field X", leave X blank in 60-80% of rows.
+- Include at least one realistic LEAKER column that a Phase-2 audit would catch (e.g., inspector_id when judgement varies; chargeback_flag for fraud). The brief should hint at it.
+- column names: snake_case, lowercase. e.g. \`days_since_last_inspection\`, \`is_critical\`.
+- type: one of "number" | "string" | "boolean" | "date".
+- rows: every cell as a STRING (numbers stringified, booleans as "true"/"false", dates as YYYY-MM-DD). Use empty string "" for blank/missing.
+- All values plausible: real-looking IDs, dates in a coherent date range, dollar amounts in a believable range for the domain.
+- Don't reuse the restaurant-inspection domain — pick something fresh.`;
 
-Output is ONLY the brief — no solution, no algorithm hints, no analytical commentary. The brief is what an ML engineer would receive from a stakeholder on day one.
+/* -----------------------------------------------------------------------
+ * BRIEF generation — returns { brief, dataset }
+ * --------------------------------------------------------------------- */
 
-Format the brief in markdown EXACTLY like this template (the bracketed parts are placeholders, not literal):
+export const BRIEF_SYSTEM_PROMPT = `You generate a realistic ML business brief AND a small matching dataset for a learner.
+
+Output is a JSON object with shape:
+{
+  "brief": "<markdown string, 200-400 words>",
+  "dataset": { filename, description, columns: [...], rows: [...] }
+}
+
+The brief markdown template (use VERBATIM, fill the bracketed parts):
 
 # [Scenario title — descriptive, e.g. "Hospital Readmission Risk Scoring"]
 
-> **Complexity:** [one-line callout that names the 2-3 hardest constraints — e.g. "Moderate imbalance (~9%), regulated under HIPAA, real-time at discharge, mixed types with informative missingness."]
+> **Complexity:** [one-line callout naming the 2-3 hardest constraints — e.g. "Moderate imbalance (~9%), regulated under HIPAA, real-time at discharge, mixed types with informative missingness."]
 
 ---
 
@@ -54,14 +78,16 @@ Format the brief in markdown EXACTLY like this template (the bracketed parts are
 
 [Optional final paragraph: a "this is harder than it sounds because…" line that sets up the trap learners typically fall into.]
 
----
-
-Rules:
+Brief rules:
 - DO NOT include any solution, algorithm recommendation, pipeline steps, or "what to do" advice.
 - DO NOT include section headers beyond "# Title" and "## The Brief".
 - Use realistic numbers (plausible row counts, percentages, dollar amounts).
 - Voice: a real stakeholder — concrete, slightly informal, with implicit urgency.
-- 200-400 words total.`;
+- 200-400 words total.
+
+${DATASET_RULES}
+
+The dataset MUST match the brief: same domain, target column matches the prediction target, features reflect the brief's mentioned columns.`;
 
 export function buildBriefUserMessage(type: ScenarioType, complexity: Complexity): string {
   const resolvedType =
@@ -71,17 +97,27 @@ export function buildBriefUserMessage(type: ScenarioType, complexity: Complexity
       ? (['easy', 'medium', 'hard'] as const)[Math.floor(Math.random() * 3)]
       : complexity;
 
-  return `Generate a fresh problem brief.
+  return `Generate a fresh problem brief + matching dataset.
 
 Type: ${TYPE_DIRECTIVES[resolvedType]}
 
 Complexity: ${COMPLEXITY_DIRECTIVES[resolvedComplexity]}
 
-Pick an industry / domain at random — vary it across calls (don't default to fraud, churn, or housing). Make the brief specific and concrete.`;
+Pick an industry / domain at random — vary it across calls (don't default to fraud, churn, housing, or restaurant inspections). Make the brief specific and concrete, and produce a 15-30 row matching dataset.`;
 }
 
+export const BRIEF_RESPONSE_SCHEMA = {
+  type: 'object',
+  required: ['brief', 'dataset'],
+  properties: {
+    brief: { type: 'string', minLength: 200 },
+    dataset: DATASET_JSON_SCHEMA,
+  },
+  additionalProperties: false,
+} as const;
+
 /* -----------------------------------------------------------------------
- * SOLUTION generation (17-step walkthrough + critique)
+ * SOLUTION generation (text-streaming, unchanged)
  * --------------------------------------------------------------------- */
 
 export const SOLUTION_SYSTEM_PROMPT = `You are an expert ML engineer reviewing a learner's attempt at a business ML problem.
@@ -144,60 +180,44 @@ Produce the model answer, then the critique. Use the exact format from the syste
 }
 
 /* -----------------------------------------------------------------------
- * BRIEF READING — brief + 7-phase signal extraction
+ * BRIEF READING — returns { brief, dataset, phases }
  * --------------------------------------------------------------------- */
 
-export const BRIEF_READING_SYSTEM_PROMPT = `You generate a teaching artefact: a realistic ML problem brief, followed by a per-phase dissection that pulls out the exact phrases that drive decisions in each of the 7 pipeline phases.
+export const BRIEF_READING_SYSTEM_PROMPT = `You generate a complete teaching artefact: a realistic ML business brief, a small matching dataset, AND a per-phase dissection that pulls verbatim phrases from the brief to drive decisions in each of the 7 pipeline phases.
 
-Output in markdown EXACTLY in this shape:
+Output is a JSON object:
+{
+  "brief": "<markdown string>",
+  "dataset": { filename, description, columns: [...], rows: [...] },
+  "phases": [
+    {
+      "num": "01",
+      "title": "Understand the Problem",
+      "intro": "<one-line: what you're extracting in this phase>",
+      "signals": [
+        { "quote": "<verbatim phrase from the brief>", "implication": "<the concrete decision that phrase forces>" },
+        ...
+      ]
+    },
+    ... (exactly 7 phase blocks, num "01" through "07")
+  ]
+}
 
-# [Scenario title]
+The brief uses the same markdown template as a normal brief generation (# Title, > Complexity callout, ## The Brief).
 
-> **Complexity:** [2-3 hardest constraints]
+${DATASET_RULES}
 
----
-
-## The Brief
-
-[2-4 paragraphs from a stakeholder's voice. 200-400 words. Same standard as a normal brief.]
-
----
-
-## Signal Extraction
-
-### Phase 1 — Understand the Problem
-
-> *"[exact verbatim phrase from the brief above]"*
-> → [decision this phrase forces in Phase 1: metric, problem type, regulatory frame, cost structure]
-
-> *"[another verbatim phrase]"*
-> → [the decision]
-
-(2-4 quoted phrases per phase. Each phrase MUST appear verbatim in the brief above.)
-
-### Phase 2 — Data Exploration & Cleaning
-(same pattern)
-
-### Phase 3 — Feature Selection & Preprocessing
-(same pattern)
-
-### Phase 4 — Model Selection & Training
-(same pattern)
-
-### Phase 5 — Optimization
-(same pattern)
-
-### Phase 6 — Evaluation & Validation
-(same pattern)
-
-### Phase 7 — Deployment
-(same pattern)
-
-Rules:
-- Every quoted phrase must be VERBATIM from the brief you wrote.
-- The implication arrow ("→") must be a concrete decision a learner can act on — specific encoders, specific metrics, specific thresholds — not generic platitudes.
-- Don't reference data / columns that aren't in the brief.
-- No section headings beyond what's listed above.`;
+Phase block rules:
+- EXACTLY 7 entries: num "01" through "07", in order, titles must match:
+  01 Understand the Problem
+  02 Data Exploration & Cleaning
+  03 Feature Selection & Preprocessing
+  04 Model Selection & Training
+  05 Optimization
+  06 Evaluation & Validation
+  07 Deployment
+- Each block has 2-4 \`signals\`. Each \`quote\` must appear VERBATIM in the brief (a meaningful clause, not a single word). Each \`implication\` is a concrete, actionable decision — a specific metric, encoder, threshold, audit, monitor — not a generic platitude.
+- \`intro\` is a single short sentence framing what the phase extracts from the brief.`;
 
 export function buildBriefReadingUserMessage(type: ScenarioType, complexity: Complexity): string {
   const resolvedType =
@@ -207,11 +227,50 @@ export function buildBriefReadingUserMessage(type: ScenarioType, complexity: Com
       ? (['easy', 'medium', 'hard'] as const)[Math.floor(Math.random() * 3)]
       : complexity;
 
-  return `Generate a fresh brief + 7-phase signal extraction.
+  return `Generate a fresh brief + matching dataset + 7-phase signal extraction.
 
 Type: ${TYPE_DIRECTIVES[resolvedType]}
 
 Complexity: ${COMPLEXITY_DIRECTIVES[resolvedComplexity]}
 
-Pick an industry / domain at random (NOT restaurants, NOT fraud, NOT churn — those are over-used). Make every quoted phrase appear verbatim in your own brief.`;
+Pick a fresh industry / domain (NOT restaurants, fraud, churn, or housing). Every quoted phrase in the phases array must appear verbatim in your generated brief.`;
 }
+
+export const BRIEF_READING_RESPONSE_SCHEMA = {
+  type: 'object',
+  required: ['brief', 'dataset', 'phases'],
+  properties: {
+    brief: { type: 'string', minLength: 200 },
+    dataset: DATASET_JSON_SCHEMA,
+    phases: {
+      type: 'array',
+      minItems: 7,
+      maxItems: 7,
+      items: {
+        type: 'object',
+        required: ['num', 'title', 'intro', 'signals'],
+        properties: {
+          num: { type: 'string', enum: ['01', '02', '03', '04', '05', '06', '07'] },
+          title: { type: 'string' },
+          intro: { type: 'string' },
+          signals: {
+            type: 'array',
+            minItems: 2,
+            maxItems: 4,
+            items: {
+              type: 'object',
+              required: ['quote', 'implication'],
+              properties: {
+                quote: { type: 'string' },
+                implication: { type: 'string' },
+              },
+              additionalProperties: false,
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+  additionalProperties: false,
+} as const;

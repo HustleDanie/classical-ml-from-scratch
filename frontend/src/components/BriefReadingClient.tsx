@@ -1,8 +1,11 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Loader2, RefreshCcw, Sparkles } from 'lucide-react';
+import { Loader2, RefreshCcw, Sparkles, ArrowRight } from 'lucide-react';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { GeneratedDatasetPreview } from './GeneratedDatasetPreview';
+import type { GeneratedDataset } from '@/lib/dataset';
+import Link from 'next/link';
 
 type ScenarioType = 'classification' | 'regression' | 'random';
 type Complexity = 'easy' | 'medium' | 'hard' | 'random';
@@ -20,75 +23,97 @@ const COMPLEXITY_OPTIONS: { value: Complexity; label: string }[] = [
   { value: 'random', label: 'Random' },
 ];
 
-async function streamInto(
+interface PhaseBlock {
+  num: string;
+  title: string;
+  intro: string;
+  signals: { quote: string; implication: string }[];
+}
+
+interface BriefReadingResponse {
+  brief: string;
+  dataset: GeneratedDataset;
+  phases: PhaseBlock[];
+}
+
+const PHASE_SLUG: Record<string, string> = {
+  '01': '04_phase_1_understand_problem',
+  '02': '05_phase_2_data_exploration_cleaning',
+  '03': '06_phase_3_feature_selection_preprocessing',
+  '04': '07_phase_4_model_selection_training',
+  '05': '08_phase_5_optimization',
+  '06': '09_phase_6_evaluation_validation',
+  '07': '10_phase_7_deployment',
+};
+
+async function postJson<T>(
   url: string,
   body: unknown,
-  onChunk: (acc: string) => void,
   signal?: AbortSignal,
-): Promise<{ ok: boolean; errorMessage?: string }> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    signal,
-  });
-  if (!res.ok) {
-    let errorMessage = `Request failed (${res.status}).`;
-    try {
-      const data = await res.json();
-      if (data?.error) errorMessage = String(data.error);
-    } catch {
-      /* ignore */
+): Promise<{ ok: boolean; data?: T; errorMessage?: string }> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return {
+        ok: false,
+        errorMessage: data?.error
+          ? String(data.error)
+          : `Request failed (${res.status}).`,
+      };
     }
-    return { ok: false, errorMessage };
+    return { ok: true, data: data as T };
+  } catch (err) {
+    return {
+      ok: false,
+      errorMessage: err instanceof Error ? err.message : 'Network error.',
+    };
   }
-  if (!res.body) return { ok: false, errorMessage: 'No response body.' };
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let acc = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += decoder.decode(value, { stream: true });
-    onChunk(acc);
-  }
-  return { ok: true };
 }
 
 /**
- * Interactive island on /learn/brief-reading. Default view = the static
- * worked example rendered by the server component. Clicking "Generate New"
- * shows a fresh AI-generated brief + 7-phase dissection inline (replaces
- * the static example until reset).
+ * Interactive island on /learn/brief-reading. Default = the hand-crafted
+ * worked example rendered below. Clicking Generate triggers /api/learn/
+ * brief-reading which returns { brief, dataset, phases } in a single
+ * structured-output call. The generated artefact replaces the default
+ * until reset.
  */
 export function BriefReadingClient() {
   const [type, setType] = useState<ScenarioType>('random');
   const [complexity, setComplexity] = useState<Complexity>('medium');
-  const [body, setBody] = useState('');
+  const [response, setResponse] = useState<BriefReadingResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const ctrlRef = useRef<AbortController | null>(null);
 
   async function handleGenerate() {
     setError(null);
-    setBody('');
+    setResponse(null);
     setLoading(true);
     ctrlRef.current?.abort();
     const ctrl = new AbortController();
     ctrlRef.current = ctrl;
-    const r = await streamInto(
+    const r = await postJson<BriefReadingResponse>(
       '/api/learn/brief-reading',
       { type, complexity },
-      (acc) => setBody(acc),
       ctrl.signal,
     );
     setLoading(false);
-    if (!r.ok && r.errorMessage) setError(r.errorMessage);
+    if (r.ok && r.data) {
+      setResponse(r.data);
+    } else if (r.errorMessage) {
+      setError(r.errorMessage);
+    }
   }
 
   function handleReset() {
     ctrlRef.current?.abort();
-    setBody('');
+    setResponse(null);
     setError(null);
   }
 
@@ -101,8 +126,8 @@ export function BriefReadingClient() {
         </div>
         <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-5">
-            Spin up a fresh AI-generated brief and 7-phase dissection. The default
-            example below stays in place until you do.
+            Spin up a fresh AI-generated brief, matching dataset, and 7-phase
+            dissection. The default example below stays in place until you do.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -169,10 +194,10 @@ export function BriefReadingClient() {
               ) : (
                 <Sparkles className="w-3.5 h-3.5" />
               )}
-              {body ? 'Generate Another' : 'Generate New Worked Example'}
+              {response ? 'Generate Another' : 'Generate New Worked Example'}
             </button>
 
-            {(body || loading) && (
+            {(response || loading) && (
               <button
                 type="button"
                 onClick={handleReset}
@@ -188,25 +213,103 @@ export function BriefReadingClient() {
               {error}
             </div>
           )}
+
+          {loading && !response && (
+            <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 italic">
+              Generating brief + dataset + 7-phase dissection… this can take 60–120
+              seconds with adaptive thinking.
+            </div>
+          )}
         </div>
       </section>
 
-      {/* AI-generated body — replaces the static default below it when present */}
-      {(body || loading) && (
-        <section className="max-w-4xl mx-auto px-4 md:px-6 pb-16">
-          <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-emerald-700 dark:text-emerald-300 mb-4">
-            AI-generated · {type} · {complexity}
-          </div>
-          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 md:p-8">
-            {body ? (
-              <article className="prose-mlfs max-w-none">
-                <MarkdownRenderer source={body} />
-              </article>
-            ) : (
-              <p className="text-gray-500 italic">Generating fresh brief + dissection…</p>
-            )}
-          </div>
-        </section>
+      {/* AI-generated artefact */}
+      {response && (
+        <>
+          <section className="max-w-4xl mx-auto px-4 md:px-6 pb-2">
+            <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-emerald-700 dark:text-emerald-300 mb-1">
+              AI-generated · {type} · {complexity}
+            </div>
+          </section>
+
+          {/* Brief */}
+          <section className="max-w-4xl mx-auto px-4 md:px-6 pb-10">
+            <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-4">
+              The Brief
+            </div>
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 md:p-8">
+              <div className="prose-mlfs max-w-none">
+                <MarkdownRenderer source={response.brief} />
+              </div>
+            </div>
+          </section>
+
+          {/* Dataset */}
+          <section className="max-w-4xl mx-auto px-4 md:px-6 pb-12">
+            <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-4">
+              The Dataset
+            </div>
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 md:p-8">
+              <GeneratedDatasetPreview dataset={response.dataset} framed={false} />
+            </div>
+          </section>
+
+          {/* Per-phase signal extraction */}
+          <section className="max-w-4xl mx-auto px-4 md:px-6 pb-16 md:pb-24">
+            <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-gray-400 mb-4">
+              Signal extraction
+            </div>
+
+            <ol className="space-y-12 md:space-y-16">
+              {response.phases.map((p) => {
+                const slug = PHASE_SLUG[p.num];
+                return (
+                  <li key={p.num}>
+                    <div className="grid grid-cols-[auto,1fr] gap-x-6 md:gap-x-10 items-baseline mb-4">
+                      <span className="font-mono text-sm tracking-[0.2em] text-gray-400">
+                        {p.num}
+                      </span>
+                      <div>
+                        {slug ? (
+                          <Link
+                            href={`/learn/${slug}`}
+                            className="group inline-flex items-baseline gap-3 text-2xl md:text-3xl font-[family-name:var(--font-plex-serif)] hover:text-emerald-800 dark:hover:text-emerald-200 transition-colors"
+                          >
+                            {p.title}
+                            <ArrowRight className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                          </Link>
+                        ) : (
+                          <span className="text-2xl md:text-3xl font-[family-name:var(--font-plex-serif)]">
+                            {p.title}
+                          </span>
+                        )}
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 italic font-[family-name:var(--font-plex-serif)]">
+                          {p.intro}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ul className="ml-0 md:ml-12 space-y-5 border-l-2 border-gray-200 dark:border-gray-800 pl-5 md:pl-6">
+                      {p.signals.map((s, i) => (
+                        <li key={i}>
+                          <blockquote className="font-[family-name:var(--font-plex-serif)] italic text-gray-700 dark:text-gray-200 text-[1.05rem] leading-relaxed">
+                            “{s.quote}”
+                          </blockquote>
+                          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-emerald-700 dark:text-emerald-300 mr-2">
+                              →
+                            </span>
+                            {s.implication}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        </>
       )}
     </>
   );
