@@ -10,7 +10,7 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // Vercel: allow up to 5 min for adaptive thinking
+export const maxDuration = 300;
 
 interface Body {
   type?: ScenarioType;
@@ -19,6 +19,8 @@ interface Body {
 
 const VALID_TYPES: ScenarioType[] = ['classification', 'regression', 'random'];
 const VALID_COMPLEXITY: Complexity[] = ['easy', 'medium', 'hard', 'random'];
+
+const SUBMIT_TOOL_NAME = 'submit_brief_and_dataset';
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -47,17 +49,22 @@ export async function POST(req: NextRequest) {
   const userMessage = buildBriefUserMessage(type, complexity);
 
   try {
+    // Forced tool use is the reliable structured-output pattern: the model
+    // MUST call this tool, and its `input` argument is the validated JSON.
     const response = await client.messages.create({
       model: 'claude-opus-4-7',
-      max_tokens: 8000,
+      max_tokens: 12000,
       thinking: { type: 'adaptive' },
-      output_config: {
-        effort: 'medium',
-        format: {
-          type: 'json_schema',
-          schema: BRIEF_RESPONSE_SCHEMA,
+      output_config: { effort: 'medium' },
+      tools: [
+        {
+          name: SUBMIT_TOOL_NAME,
+          description:
+            'Submit the generated ML business brief and its matching synthetic dataset. Use this tool exactly once with the full payload.',
+          input_schema: BRIEF_RESPONSE_SCHEMA as Anthropic.Tool['input_schema'],
         },
-      },
+      ],
+      tool_choice: { type: 'tool', name: SUBMIT_TOOL_NAME },
       system: [
         {
           type: 'text',
@@ -68,20 +75,19 @@ export async function POST(req: NextRequest) {
       messages: [{ role: 'user', content: userMessage }],
     });
 
-    // Find the first text block — when output_config.format is json_schema,
-    // the text block contains the validated JSON as a string.
-    const textBlock = response.content.find((b) => b.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
+    const toolBlock = response.content.find((b) => b.type === 'tool_use');
+    if (!toolBlock || toolBlock.type !== 'tool_use') {
+      console.error('[practice/brief] no tool_use block in response', response.content);
       return Response.json(
-        { error: 'Model returned no text content.' },
+        { error: 'Model did not return a structured response.' },
         { status: 502 },
       );
     }
-
-    const parsed = JSON.parse(textBlock.text);
-    return Response.json(parsed);
+    // toolBlock.input is already a parsed object matching BRIEF_RESPONSE_SCHEMA.
+    return Response.json(toolBlock.input);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[practice/brief] error:', message);
     return Response.json({ error: message }, { status: 500 });
   }
 }

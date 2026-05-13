@@ -20,6 +20,8 @@ interface Body {
 const VALID_TYPES: ScenarioType[] = ['classification', 'regression', 'random'];
 const VALID_COMPLEXITY: Complexity[] = ['easy', 'medium', 'hard', 'random'];
 
+const SUBMIT_TOOL_NAME = 'submit_brief_reading';
+
 export async function POST(req: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -49,15 +51,18 @@ export async function POST(req: NextRequest) {
   try {
     const response = await client.messages.create({
       model: 'claude-opus-4-7',
-      max_tokens: 16000,
+      max_tokens: 20000,
       thinking: { type: 'adaptive' },
-      output_config: {
-        effort: 'high',
-        format: {
-          type: 'json_schema',
-          schema: BRIEF_READING_RESPONSE_SCHEMA,
+      output_config: { effort: 'high' },
+      tools: [
+        {
+          name: SUBMIT_TOOL_NAME,
+          description:
+            'Submit the generated ML brief, matching synthetic dataset, and 7-phase signal extraction. Use this tool exactly once with the complete payload.',
+          input_schema: BRIEF_READING_RESPONSE_SCHEMA as Anthropic.Tool['input_schema'],
         },
-      },
+      ],
+      tool_choice: { type: 'tool', name: SUBMIT_TOOL_NAME },
       system: [
         {
           type: 'text',
@@ -68,18 +73,18 @@ export async function POST(req: NextRequest) {
       messages: [{ role: 'user', content: userMessage }],
     });
 
-    const textBlock = response.content.find((b) => b.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
+    const toolBlock = response.content.find((b) => b.type === 'tool_use');
+    if (!toolBlock || toolBlock.type !== 'tool_use') {
+      console.error('[learn/brief-reading] no tool_use block in response', response.content);
       return Response.json(
-        { error: 'Model returned no text content.' },
+        { error: 'Model did not return a structured response.' },
         { status: 502 },
       );
     }
-
-    const parsed = JSON.parse(textBlock.text);
-    return Response.json(parsed);
+    return Response.json(toolBlock.input);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[learn/brief-reading] error:', message);
     return Response.json({ error: message }, { status: 500 });
   }
 }

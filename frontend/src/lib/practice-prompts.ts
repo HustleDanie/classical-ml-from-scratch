@@ -114,7 +114,7 @@ export const BRIEF_RESPONSE_SCHEMA = {
     dataset: DATASET_JSON_SCHEMA,
   },
   additionalProperties: false,
-} as const;
+};
 
 /* -----------------------------------------------------------------------
  * SOLUTION generation (text-streaming, unchanged)
@@ -273,4 +273,4 @@ export const BRIEF_READING_RESPONSE_SCHEMA = {
     },
   },
   additionalProperties: false,
-} as const;
+};

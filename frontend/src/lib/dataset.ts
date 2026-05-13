@@ -28,8 +28,8 @@ export interface GeneratedDataset {
   rows: Record<string, string>[];
 }
 
-/* JSON Schema describing the dataset object. Passed verbatim to
- * Claude's `output_config.format` so the API returns a valid object. */
+/* JSON Schema for the dataset object — used as the `input_schema` on a
+ * forced tool_use call, so Claude has to populate every required field. */
 export const DATASET_JSON_SCHEMA = {
   type: 'object',
   required: ['filename', 'description', 'columns', 'rows'],
@@ -62,7 +62,7 @@ export const DATASET_JSON_SCHEMA = {
     },
   },
   additionalProperties: false,
-} as const;
+};
 
 /* ---------------------------------------------------------------------- */
 /* CSV serialisation (client-side download helper).                       */
