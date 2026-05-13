@@ -4,16 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Loader2,
   RefreshCcw,
-  FlaskConical,
   NotebookPen,
   Send,
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { MarkdownRenderer } from './MarkdownRenderer';
-import { DatasetPreview } from './DatasetPreview';
 import { GeneratedDatasetPreview } from './GeneratedDatasetPreview';
-import { SAMPLE_BRIEF, SAMPLE_SOLUTION } from '@/lib/practice-sample';
 import type { GeneratedDataset } from '@/lib/dataset';
 
 type ScenarioType = 'classification' | 'regression' | 'random';
@@ -22,11 +19,10 @@ type Complexity = 'easy' | 'medium' | 'hard' | 'random';
 interface PersistedState {
   brief: string;
   solution: string;
-  isSample: boolean;
   dataset: GeneratedDataset | null;
 }
 
-const STORAGE_KEY = 'practice.workspace.v5';
+const STORAGE_KEY = 'practice.workspace.v6';
 
 const TYPE_OPTIONS: { value: ScenarioType; label: string }[] = [
   { value: 'classification', label: 'Classification' },
@@ -145,7 +141,6 @@ export function PracticeWorkspace() {
   const [briefLoading, setBriefLoading] = useState(false);
   const [solutionLoading, setSolutionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSample, setIsSample] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   const briefAbortRef = useRef<AbortController | null>(null);
@@ -157,7 +152,6 @@ export function PracticeWorkspace() {
     if (saved) {
       setBrief(saved.brief);
       setSolution(saved.solution);
-      setIsSample(saved.isSample);
       setDataset(saved.dataset ?? null);
     }
     setHydrated(true);
@@ -166,15 +160,14 @@ export function PracticeWorkspace() {
 
   useEffect(() => {
     if (!hydrated) return;
-    savePersisted({ brief, solution, isSample, dataset });
-  }, [hydrated, brief, solution, isSample, dataset]);
+    savePersisted({ brief, solution, dataset });
+  }, [hydrated, brief, solution, dataset]);
 
   async function handleGenerateBrief() {
     setError(null);
     setBrief('');
     setDataset(null);
     setSolution('');
-    setIsSample(false);
     setBriefLoading(true);
     briefAbortRef.current?.abort();
     const ctrl = new AbortController();
@@ -193,34 +186,11 @@ export function PracticeWorkspace() {
     }
   }
 
-  function handleLoadSample() {
-    briefAbortRef.current?.abort();
-    solutionAbortRef.current?.abort();
-    setError(null);
-    setIsSample(true);
-    setBrief(SAMPLE_BRIEF);
-    setDataset(null);
-    setSolution('');
-  }
-
   async function handleRevealSolution() {
     if (!brief) return;
     setError(null);
     setSolution('');
     setSolutionLoading(true);
-
-    // Sample mode replays the canned solution character-by-chunk for offline use.
-    if (isSample) {
-      const chars = SAMPLE_SOLUTION;
-      const chunkSize = 80;
-      for (let i = 0; i < chars.length; i += chunkSize) {
-        setSolution(chars.slice(0, i + chunkSize));
-        await new Promise((r) => setTimeout(r, 12));
-      }
-      setSolutionLoading(false);
-      return;
-    }
-
     solutionAbortRef.current?.abort();
     const ctrl = new AbortController();
     solutionAbortRef.current = ctrl;
@@ -240,7 +210,6 @@ export function PracticeWorkspace() {
     setBrief('');
     setDataset(null);
     setSolution('');
-    setIsSample(false);
     setError(null);
     if (typeof window !== 'undefined') window.localStorage.removeItem(STORAGE_KEY);
   }
@@ -255,8 +224,8 @@ export function PracticeWorkspace() {
           Step 01 — Load a brief
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-5">
-          Generate a fresh AI brief, or load the hand-written sample. Read the brief,
-          work through the seven phases on paper, then reveal the expert solution.
+          Generate a fresh AI brief and matching dataset. Read the brief, work through
+          the seven phases on paper, then reveal the expert solution.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -323,16 +292,7 @@ export function PracticeWorkspace() {
             ) : (
               <Sparkles className="w-3.5 h-3.5" />
             )}
-            {brief && !isSample ? 'Generate New Brief' : 'Generate Brief'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleLoadSample}
-            disabled={briefLoading}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors disabled:opacity-50"
-          >
-            <FlaskConical className="w-3.5 h-3.5" /> Try Sample
+            {brief ? 'Generate New Brief' : 'Generate Brief'}
           </button>
 
           {(brief || solution) && (
@@ -345,14 +305,6 @@ export function PracticeWorkspace() {
             </button>
           )}
         </div>
-
-        {isSample && (
-          <div className="mt-4 border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-            <strong className="font-mono tracking-widest uppercase">Sample mode</strong> · Static
-            demo brief + dataset. The Reveal button will play back the hand-written solution
-            instead of calling the API.
-          </div>
-        )}
       </section>
 
       {error && (
@@ -379,10 +331,8 @@ export function PracticeWorkspace() {
         </section>
       )}
 
-      {/* Dataset — sample mode shows the hand-written CSV;
-          API mode shows the AI-generated dataset that matches the brief. */}
-      {briefAvailable && isSample && <DatasetPreview label="Step 02b — The Dataset" />}
-      {briefAvailable && !isSample && dataset && (
+      {/* AI-generated dataset matching the brief */}
+      {briefAvailable && dataset && (
         <GeneratedDatasetPreview dataset={dataset} label="Step 02b — The Dataset" />
       )}
 
